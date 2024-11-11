@@ -1,9 +1,9 @@
-import SignUp from "@/components/SignUp";
+import Courses from "@/components/Courses";
 
 export default function Home() {
   return (
     <main className="h-full">
-      <SignUp />
+      <Courses />
     </main>
   );
 }
