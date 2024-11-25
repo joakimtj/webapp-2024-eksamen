@@ -9,100 +9,158 @@ Base path: `/api/courses`
   - 200: Array of course objects
   ```typescript
   {
-    courses: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    description: string;
+    category: string;
+    created_at: string;
+  }[];
+  ```
+  - 500: Server error
+
+#### GET /api/courses/:id
+- Purpose: Retrieve specific course
+- Response:
+  - 200: Course with lesson
+  ```typescript
+  interface CourseWithLessonResponse {
+    id: string;
+    title: string;
+    slug: string;
+    description: string;
+    category: string;
+    created_at: string;
+    lessons: {
       id: string;
       title: string;
       slug: string;
-      description: string;
-      category: string;
-    }>
+      preamble: string;
+      content_blocks: {
+        id: string;
+        content: string;
+        block_order: number;
+      }[],
+      comments: {
+        id: string;
+        comment: string;
+        user: {
+          id: string;
+          name: string;
+        };
+        created_at: string;
+      }[];
+    }[];
   }
   ```
+  - 404: Not found
   - 500: Server error
 
 #### POST /api/courses
 - Purpose: Create new course
 - Request body:
   ```typescript
-  {
+  interface CreateCourseRequest {
+    id: string;
     title: string;
+    slug: string;
     description: string;
     category: string;
-  }
-  ```
-- Response:
-  - 201: Created course object
-  ```typescript
-    {
-      id: string;
+    lessons: {
       title: string;
       slug: string;
-      description: string;
-      category: string;
-    }
+      preamble: string;
+      text: string[];
+      order: number;
+    }[];
+  }
   ```
+- Response:
+  - 201: Success
   - 400: Invalid input
   - 500: Server error
 
-#### DELETE /api/courses/{id}
-- Purpose: Delete course and related lessons/comments
+#### DELETE /api/courses/:id/
+- Purpose: Delete course and related lessons and comments
 - Response:
   - 200: Success
-  - 404: Course not found
   - 500: Server error
 
-#### PATCH /api/courses/{id}
+#### PATCH /api/courses/:id/category
 - Purpose: Update course category
-- Request body:
-  ```typescript
-  {
-    category: string;
-  }
-  ```
 - Response:
   - 200: Updated course
-  - 404: Course not found
-  - 500: Server error
-
-### Lessons
-Base path: `/api/lessons`
-
-#### GET /api/lessons
-- Purpose: Get lessons for a course
-- Query params: `courseId`
-- Response:
-  - 200: Array of lesson objects
-  - 404: Course not found
-  - 500: Server error
-
-#### POST /api/lessons
-- Purpose: Create new lesson
-- Request body:
   ```typescript
   {
-    courseId: string;
+    id: string;
     title: string;
+    slug: string;
     description: string;
-    content: string;
+    category: string;
+    created_at: string;
   }
   ```
-- Response:
-  - 201: Created lesson
-  - 400: Invalid input
+  - 404: Course not found
   - 500: Server error
 
-### Comments
-Base path: `/api/comments`
 
-#### GET /api/comments
-- Purpose: Get comments for a lesson
-- Query params: `lessonId`
+### Lessons
+
+#### GET /api/courses/:id/lessons/:lesson
+- Purpose: Retrieve a single lesson from a course
 - Response:
-  - 200: Array of comment objects
-  - 404: Lesson not found
+  - 200: Single lesson from course
+  ```typescript
+  {
+    id: string;
+    course_id: string;
+    title: string;
+    slug: string;
+    preamble: string;
+    lesson_order: number;
+    created_at: string;
+    content_blocks: {
+      id: string;
+      content: string;
+      block_order: number;
+    }[],
+    comments: {
+      id: string;
+      comment: string;
+      user: {
+        id: string;
+        name: string;
+      };
+      created_at: string;
+    }[];
+  }
+  ```
+  - 400: Invalid course or lesson ID
   - 500: Server error
 
-#### POST /api/comments
+
+#### POST /api/courses/:id/lessons/
+- Purpose: Create a single lesson for a course
+- Request:
+```typescript
+interface CreateLessonRequest {
+  courseId: string;
+  title: string;
+  preamble: string;
+  slug: string;
+  lesson_order: number;
+  content_blocks: {
+    content: string;
+    block_order: number;
+  }[];
+}
+```
+- Response:
+  - 201: Success
+    - ID of the new lesson
+  - 500: Server error
+
+#### POST /api/lessons/:id/comments
 - Purpose: Create new comment
 - Request body:
   ```typescript

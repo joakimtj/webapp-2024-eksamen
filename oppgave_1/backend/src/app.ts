@@ -146,19 +146,6 @@ app.delete('/api/courses/:id', (c) => {
 });
 
 // Lessons endpoints
-app.get('/api/courses/:courseId/lessons', (c) => {
-	try {
-		const courseId = c.req.param('courseId');
-		const lessons = db.getLessonsForCourse(courseId);
-		return c.json(lessons);
-	} catch (err) {
-		if (err instanceof DatabaseError) {
-			throw new HTTPException(500, { message: err.message });
-		}
-		throw new Error("An error occurred");
-	}
-});
-
 app.post('/api/courses/:courseId/lessons', async (c) => {
 	try {
 		const courseId = c.req.param('courseId');
@@ -167,27 +154,13 @@ app.post('/api/courses/:courseId/lessons', async (c) => {
 		return c.json(lesson, 201);
 	} catch (err) {
 		if (err instanceof DatabaseError) {
-			throw new HTTPException(400, { message: err.message });
-		}
-		throw new Error("An error occurred");
-	}
-});
-
-// Comments endpoints
-
-app.get('/api/lessons/:lessonId/comments', (c) => {
-	try {
-		const lessonId = c.req.param('lessonId');
-		const comments = db.getCommentsByLessonId(lessonId);
-		return c.json(comments);
-	} catch (err) {
-		if (err instanceof DatabaseError) {
 			throw new HTTPException(500, { message: err.message });
 		}
 		throw new Error("An error occurred");
 	}
 });
 
+// Comments endpoints
 app.post('/api/lessons/:lessonId/comments', async (c) => {
 	try {
 		const lessonId = c.req.param('lessonId');
