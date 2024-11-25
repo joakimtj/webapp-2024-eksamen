@@ -38,7 +38,9 @@ export class DatabaseService {
     };
 
     constructor(dbPath: string) {
-        this.db = new Database(dbPath, { verbose: console.log });
+        // this.db = new Database(dbPath, { verbose: console.log });
+        this.db = new Database(dbPath);
+
         this.db.pragma('journal_mode = WAL');
         this.initializeStatements();
     }
@@ -55,33 +57,15 @@ export class DatabaseService {
             `),
 
             getCourseWithLessons: this.db.prepare(`
-                WITH lesson_comments AS (
+                WITH lesson_content AS (
                     SELECT l.id as lesson_id,
-                           json_group_array(
-                               json_object(
-                                   'id', c.id,
-                                   'comment', c.comment,
-                                   'user', json_object(
-                                       'id', u.id,
-                                       'name', u.name
-                                   ),
-                                   'created_at', c.created_at
-                               )
-                           ) as comments
-                    FROM lessons l
-                    LEFT JOIN comments c ON l.id = c.lesson_id
-                    LEFT JOIN users u ON c.user_id = u.id
-                    GROUP BY l.id
-                ),
-                lesson_content AS (
-                    SELECT l.id as lesson_id,
-                           json_group_array(
-                               json_object(
-                                   'id', lcb.id,
-                                   'content', lcb.content,
-                                   'block_order', lcb.block_order
-                               )
-                           ) as content_blocks
+                        json_group_array(
+                            json_object(
+                                'id', lcb.id,
+                                'content', lcb.content,
+                                'block_order', lcb.block_order
+                            )
+                        ) as content_blocks
                     FROM lessons l
                     LEFT JOIN lesson_content_blocks lcb ON l.id = lcb.lesson_id
                     GROUP BY l.id
@@ -103,16 +87,11 @@ export class DatabaseService {
                                 'content_blocks', COALESCE(
                                     NULLIF(lc.content_blocks, '[null]'),
                                     '[]'
-                                ),
-                                'comments', COALESCE(
-                                    NULLIF(lcm.comments, '[null]'),
-                                    '[]'
                                 )
                             )
                         )
                         FROM lessons l
                         LEFT JOIN lesson_content AS lc ON l.id = lc.lesson_id
-                        LEFT JOIN lesson_comments lcm ON l.id = lcm.lesson_id
                         WHERE l.course_id = c.id
                         ORDER BY l.lesson_order
                     )
