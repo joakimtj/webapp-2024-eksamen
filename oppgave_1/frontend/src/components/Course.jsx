@@ -91,7 +91,8 @@ function Course(slug) {
                 <h3 className="mb-4 text-base font-bold">Deltakere</h3>
                 <ul data-testid="course_enrollments">
                     {users?.map((user) => (
-                        <li className="mb-1" key={user.id}>
+                        <li className="mb-1"
+                            key={user}>
                             {user}
                         </li>
                     ))}
