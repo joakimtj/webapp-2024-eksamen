@@ -3,20 +3,29 @@
 import { useState, useEffect } from "react";
 import Lesson from "./Lesson";
 
-import {
-    users,
-    courses,
-} from "../data/data";
 
 const getCourse = async (slug) => {
-    const data = await courses.filter((course) => course.slug === slug);
-    return data?.[0];
+    const course = await fetch(`http://localhost:3999/api/courses/${slug}`)
+        .then((response) => response.json())
+        .then((data) => {
+            return data;
+        });
+    return course;
 };
 
+const getUsers = async () => {
+    const users = await fetch("http://localhost:3999/api/users")
+        .then((response) => response.json())
+        .then((data) => {
+            return data;
+        });
+    return users;
+};
 
 
 function Course(slug) {
     const [content, setContent] = useState(null);
+    const [users, setUsers] = useState([]);
 
     const courseSlug = slug.courseSlug;
     const lessonSlug = slug.lessonSlug;
@@ -25,6 +34,9 @@ function Course(slug) {
         const getContent = async () => {
             const data = await getCourse(slug.courseSlug);
             setContent(data);
+
+            const users = await getUsers();
+            setUsers(users);
         };
         getContent();
     }, [courseSlug]);
@@ -80,7 +92,7 @@ function Course(slug) {
                 <ul data-testid="course_enrollments">
                     {users?.map((user) => (
                         <li className="mb-1" key={user.id}>
-                            {user.name}
+                            {user}
                         </li>
                     ))}
                 </ul>
