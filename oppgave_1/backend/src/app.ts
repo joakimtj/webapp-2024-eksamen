@@ -38,6 +38,7 @@ app.get('/api/courses/:id', (c) => {
 			}
 			throw new HTTPException(500, { message: err.message });
 		}
+		console.log(err);
 		throw new Error("An error occurred");
 	}
 });
@@ -133,6 +134,19 @@ app.get('/api/categories', (c) => {
 	try {
 		const categories = db.getCategories();
 		return c.json(categories);
+	} catch (err) {
+		if (err instanceof DatabaseError) {
+			throw new HTTPException(500, { message: err.message });
+		}
+		throw new Error("An error occurred");
+	}
+});
+
+// Users endpoint
+app.get('/api/users', (c) => {
+	try {
+		const users = db.getUsers();
+		return c.json(users);
 	} catch (err) {
 		if (err instanceof DatabaseError) {
 			throw new HTTPException(500, { message: err.message });
