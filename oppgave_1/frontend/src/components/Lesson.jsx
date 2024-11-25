@@ -1,35 +1,37 @@
 
 import { useState, useEffect } from "react";
 
-import {
-    courses,
-    comments,
-} from "../data/data";
-
-
 const getLesson = async (courseSlug, lessonSlug) => {
-    const data = await courses
-        .flatMap(
-            (course) =>
-                course.slug === courseSlug &&
-                course.lessons.filter((lesson) => lesson.slug === lessonSlug)
-        )
-        .filter(Boolean);
-    return data?.[0];
+    const lesson =
+        await fetch(`http://localhost:3999/api/courses/${courseSlug}/lessons/${lessonSlug}`)
+            .then((response) => response.json())
+            .then((data) => {
+                return data;
+            });
+    return lesson;
 };
 
 
 const getCourse = async (slug) => {
-    const data = await courses.filter((course) => course.slug === slug);
-    return data?.[0];
+    const course =
+        await fetch(`http://localhost:3999/api/courses/${slug}`)
+            .then((response) => response.json())
+            .then((data) => {
+                return data;
+            });
+    return course;
 };
 
+/*
 const getComments = async (lessonSlug) => {
-    const data = await comments.filter(
-        (comment) => comment.lesson.slug === lessonSlug
-    );
-    return data;
-};
+    const lessons =
+        await fetch(`http://localhost:3999/api/lessons/${lessonSlug}/comments`)
+            .then((response) => response.json())
+            .then((data) => {
+                return data;
+            });
+    return lessons;
+};*/
 
 const createComment = async (data) => {
     await comments.push(data);
@@ -80,12 +82,12 @@ function Lesson(slug) {
 
     useEffect(() => {
         const getContent = async () => {
-            const lessonDate = await getLesson(courseSlug, lessonSlug);
+            const lessonData = await getLesson(courseSlug, lessonSlug);
             const courseData = await getCourse(courseSlug);
-            const commentsData = await getComments(lessonSlug);
-            setLesson(lessonDate);
+            //const commentsData = await getComments(lessonSlug);
+            setLesson(lessonData);
             setCourse(courseData);
-            setComments(commentsData);
+            setComments(lessonData.comments);
         };
         getContent();
     }, [courseSlug, lessonSlug]);
@@ -109,16 +111,16 @@ function Lesson(slug) {
                 data-testid="lesson_preAmble"
                 className="mt-4 font-semibold leading-relaxed"
             >
-                {lesson?.preAmble}
+                {lesson?.preamble}
             </p>
-            {lesson?.text?.length > 0 &&
-                lesson.text.map((text) => (
+            {lesson?.content_blocks?.length > 1 &&
+                lesson.content_blocks.map((text) => (
                     <p
                         data-testid="lesson_text"
                         className="mt-4 font-normal"
                         key={text.id}
                     >
-                        {text.text}
+                        {text.content}
                     </p>
                 ))}
             <section data-testid="comments">
@@ -182,7 +184,7 @@ function Lesson(slug) {
                                 key={c.id}
                             >
                                 <h5 data-testid="user_comment_name" className="font-bold">
-                                    {c.createdBy.name}
+                                    {c.user.name}
                                 </h5>
                                 <p data-testid="user_comment">{c.comment}</p>
                             </li>

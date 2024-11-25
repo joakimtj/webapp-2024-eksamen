@@ -23,15 +23,18 @@ export class DatabaseService {
     private statements!: {
         getCourses: Database.Statement<[], DbCourse>;
         getCourseWithLessons: Database.Statement<[string], { course_data: string }>;
-        getCoursesWithLessons: Database.Statement<[], { courses_data: string }>;
         createCourse: Database.Statement<[string, string, string, string, string], void>;
         updateCourseCategory: Database.Statement<[string, string], void>;
         deleteCourse: Database.Statement<[string], void>;
         getLessonsForCourse: Database.Statement<[string], DbLesson>;
         createLesson: Database.Statement<[string, string, string, string, string, string], void>;
         getLessonById: Database.Statement<[string], DbLesson>;
+
+        getLessonBySlug: Database.Statement<[string, string], DbLesson>;
+
         createLessonContentBlock: Database.Statement<[string, string, string, number], void>;
         createComment: Database.Statement<[string, string, string, string], void>;
+        getCommentByLessonId: Database.Statement<[string], DbComment>;
         getCommentById: Database.Statement<[string], DbComment>;
         getCategories: Database.Statement<[], { name: string }>;
         getUsers: Database.Statement<[], { name: string }>;
@@ -99,74 +102,6 @@ export class DatabaseService {
                 FROM courses c
                 WHERE c.slug = ?
             `),
-            getCoursesWithLessons: this.db.prepare(`
-                WITH lesson_comments AS (
-                    SELECT l.id as lesson_id,
-                           json_group_array(
-                               json_object(
-                                   'id', c.id,
-                                   'comment', c.comment,
-                                   'user', json_object(
-                                       'id', u.id,
-                                       'name', u.name
-                                   ),
-                                   'created_at', c.created_at
-                               )
-                           ) as comments
-                    FROM lessons l
-                    LEFT JOIN comments c ON l.id = c.lesson_id
-                    LEFT JOIN users u ON c.user_id = u.id
-                    GROUP BY l.id
-                ),
-                lesson_content AS (
-                    SELECT l.id as lesson_id,
-                           json_group_array(
-                               json_object(
-                                   'id', lcb.id,
-                                   'content', lcb.content,
-                                   'block_order', lcb.block_order
-                               )
-                           ) as content_blocks
-                    FROM lessons l
-                    LEFT JOIN lesson_content_blocks lcb ON l.id = lcb.lesson_id
-                    GROUP BY l.id
-                )
-                SELECT json_group_array(
-                    json_object(
-                        'id', c.id,
-                        'title', c.title,
-                        'slug', c.slug,
-                        'description', c.description,
-                        'category', c.category,
-                        'created_at', c.created_at,
-                        'lessons', (
-                            SELECT json_group_array(
-                                json_object(
-                                    'id', l.id,
-                                    'title', l.title,
-                                    'slug', l.slug,
-                                    'preamble', l.preamble,
-                                    'content_blocks', COALESCE(
-                                        NULLIF(lc.content_blocks, '[null]'),
-                                        '[]'
-                                    ),
-                                    'comments', COALESCE(
-                                        NULLIF(lcm.comments, '[null]'),
-                                        '[]'
-                                    )
-                                )
-                            )
-                            FROM lessons l
-                            LEFT JOIN lesson_content AS lc ON l.id = lc.lesson_id
-                            LEFT JOIN lesson_comments lcm ON l.id = lcm.lesson_id
-                            WHERE l.course_id = c.id
-                            ORDER BY l.lesson_order
-                        )
-                    )
-                ) as courses_data
-                FROM courses c
-                ORDER BY c.created_at DESC
-            `),
             createCourse: this.db.prepare(`
                 INSERT INTO courses (id, title, slug, description, category) 
                 VALUES (?, ?, ?, ?, ?)
@@ -180,8 +115,53 @@ export class DatabaseService {
                 DELETE FROM courses WHERE id = ?
             `),
 
+            getLessonBySlug: this.db.prepare(`
+                WITH lesson_comments AS (
+                SELECT l.id as lesson_id,
+                    json_group_array(
+                        json_object(
+                            'id', c.id,
+                            'comment', c.comment,
+                            'user', json_object(
+                                'id', u.id,
+                                'name', u.name
+                            ),
+                            'created_at', c.created_at
+                        )
+                    ) as comments
+                FROM lessons l
+                LEFT JOIN comments c ON l.id = c.lesson_id
+                LEFT JOIN users u ON c.user_id = u.id
+                GROUP BY l.id
+            ),
+            lesson_content AS (
+                SELECT l.id as lesson_id,
+                    json_group_array(
+                        json_object(
+                            'id', lcb.id,
+                            'content', lcb.content,
+                            'block_order', lcb.block_order
+                        )
+                    ) as content_blocks
+                FROM lessons l
+                LEFT JOIN lesson_content_blocks lcb ON l.id = lcb.lesson_id
+                GROUP BY l.id
+            )
+            SELECT 
+                l.id,
+                l.title,
+                l.slug,
+                l.preamble,
+                COALESCE(NULLIF(lc.content_blocks, '[null]'), '[]') as content_blocks,
+                COALESCE(NULLIF(lcm.comments, '[null]'), '[]') as comments
+            FROM lessons l
+            JOIN courses c ON l.course_id = c.id
+            LEFT JOIN lesson_content AS lc ON l.id = lc.lesson_id
+            LEFT JOIN lesson_comments lcm ON l.id = lcm.lesson_id
+            WHERE c.slug = ? AND l.slug = ?
+            `),
             getLessonsForCourse: this.db.prepare(`
-                SELECT * FROM lessons WHERE course_id = ? ORDER BY lesson_order ASC
+                SELECT * FROM lessons WHERE course_id = ?
             `),
 
             createLesson: this.db.prepare(`
@@ -200,6 +180,21 @@ export class DatabaseService {
 
             getLessonById: this.db.prepare(`
                 SELECT * FROM lessons WHERE id = ?
+            `),
+
+            getCommentByLessonId: this.db.prepare(`
+                SELECT 
+                c.id,
+                c.comment,
+                json_object(
+                    'id', u.id,
+                    'name', u.name
+                ) as user,
+                c.created_at
+                FROM comments c
+                JOIN users u ON c.user_id = u.id
+                WHERE c.lesson_id = ?
+                ORDER BY c.created_at DESC;
             `),
 
             createComment: this.db.prepare(`
@@ -244,17 +239,6 @@ export class DatabaseService {
             throw new DatabaseError('Failed to get course', 'DB_ERROR', err as Error);
         }
     }
-    getCoursesWithLessons(): CourseWithLessonsResponse[] {
-        try {
-            const row = this.statements.getCoursesWithLessons.get();
-            if (!row || !row.courses_data) {
-                return [];
-            }
-            return JSON.parse(row.courses_data);
-        } catch (err) {
-            throw new DatabaseError('Failed to get courses with lessons', 'DB_ERROR', err as Error);
-        }
-    }
     createCourse(data: CreateCourseRequest): DbCourse {
         const id = generateId();
         const slug = generateSlug(data.title);
@@ -287,9 +271,25 @@ export class DatabaseService {
     // Lessons
     getLessonsForCourse(courseId: string): DbLesson[] {
         try {
+
             return this.statements.getLessonsForCourse.all(courseId);
         } catch (err) {
             throw new DatabaseError('Failed to get lessons', 'DB_ERROR', err as Error);
+        }
+    }
+
+    getLessonBySlug(courseSlug: string, lessonSlug: string): DbLesson {
+        try {
+            const lesson = this.statements.getLessonBySlug.get(courseSlug, lessonSlug);
+            if (!lesson) {
+                throw new NotFoundError(`Lesson with slug ${lessonSlug} not found`);
+            }
+            return lesson;
+        } catch (err) {
+            if (err instanceof NotFoundError) {
+                throw err;
+            }
+            throw new DatabaseError('Failed to get lesson', 'DB_ERROR', err as Error);
         }
     }
 
@@ -345,6 +345,14 @@ export class DatabaseService {
             return this.getCommentById(id);
         } catch (err) {
             throw new DatabaseError('Failed to create comment', 'DB_ERROR', err as Error);
+        }
+    }
+
+    getCommentsByLessonId(lessonId: string): DbComment[] {
+        try {
+            return this.statements.getCommentByLessonId.all(lessonId);
+        } catch (err) {
+            throw new DatabaseError('Failed to get comments', 'DB_ERROR', err as Error);
         }
     }
 

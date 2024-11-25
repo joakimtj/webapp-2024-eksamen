@@ -4,7 +4,7 @@ import { cors } from "hono/cors";
 
 import { HTTPException } from 'hono/http-exception';
 import { DatabaseService } from './services/database';
-import { Success, Failure, Result, CreateCourseRequest, CreateLessonRequest, CreateCommentRequest, DatabaseError } from './types';
+import { Success, Failure, Result, CreateCourseRequest, CreateLessonRequest, CreateCommentRequest, DatabaseError, LessonResponse, DbLesson } from './types';
 
 const db = new DatabaseService('db/db.db');
 
@@ -15,8 +15,7 @@ app.use("/*", cors());
 // Courses endpoints
 app.get('/api/courses', (c) => {
 	try {
-		const withLessons = c.req.query('include_lessons') === 'true';
-		const courses = withLessons ? db.getCoursesWithLessons() : db.getCourses();
+		const courses = db.getCourses();
 		return c.json(courses);
 	} catch (err) {
 		if (err instanceof DatabaseError) {
@@ -28,6 +27,7 @@ app.get('/api/courses', (c) => {
 
 app.get('/api/courses/:id', (c) => {
 	try {
+		console.log('get course by id');
 		const id = c.req.param('id');
 		const course = db.getCourseWithLessons(id);
 		return c.json(course);
@@ -42,6 +42,40 @@ app.get('/api/courses/:id', (c) => {
 		throw new Error("An error occurred");
 	}
 });
+
+app.get('/api/courses/:id/lessons/:lesson', (c) => {
+	try {
+		interface ExtendedLesson extends DbLesson {
+			content_blocks: string;
+			comments: string;
+		}
+
+		const id = c.req.param('id');
+		const lesson = c.req.param('lesson');
+		if (!id || !lesson) {
+			throw new HTTPException(400, { message: 'Invalid course or lesson ID' });
+		}
+		const result = db.getLessonBySlug(id, lesson) as ExtendedLesson;
+		// TODO fix original type instead
+		const rresult = {
+			...result,
+			content_blocks: JSON.parse(result.content_blocks),
+			comments: JSON.parse(result.comments)
+		}
+		return c.json(rresult);
+	} catch (err) {
+		if (err instanceof DatabaseError) {
+			if (err.message.includes('not found')) {
+				throw new HTTPException(404, { message: err.message });
+			}
+			throw new HTTPException(500, { message: err.message });
+		}
+		throw new Error("An error occurred");
+	}
+});
+
+
+
 
 app.post('/api/courses', async (c) => {
 	try {
@@ -115,6 +149,20 @@ app.post('/api/courses/:courseId/lessons', async (c) => {
 });
 
 // Comments endpoints
+
+app.get('/api/lessons/:lessonId/comments', (c) => {
+	try {
+		const lessonId = c.req.param('lessonId');
+		const comments = db.getCommentsByLessonId(lessonId);
+		return c.json(comments);
+	} catch (err) {
+		if (err instanceof DatabaseError) {
+			throw new HTTPException(500, { message: err.message });
+		}
+		throw new Error("An error occurred");
+	}
+});
+
 app.post('/api/lessons/:lessonId/comments', async (c) => {
 	try {
 		const lessonId = c.req.param('lessonId');
