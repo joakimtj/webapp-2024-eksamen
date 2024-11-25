@@ -39,7 +39,7 @@ function Course(slug) {
             setUsers(users);
         };
         getContent();
-    }, [courseSlug]);
+    }, [courseSlug]); // TODO: still triggers rerender on lesson change
 
 
     return (

@@ -27,12 +27,12 @@ export class DatabaseService {
         updateCourseCategory: Database.Statement<[string, string], void>;
         deleteCourse: Database.Statement<[string], void>;
         getLessonsForCourse: Database.Statement<[string], DbLesson>;
-        createLesson: Database.Statement<[string, string, string, string, string, string], void>;
+        createLesson: Database.Statement<[string, string, string, string, string, number], void>;
         getLessonById: Database.Statement<[string], DbLesson>;
 
         getLessonBySlug: Database.Statement<[string, string], DbLesson>;
 
-        createLessonContentBlock: Database.Statement<[string, string, string, number], void>;
+        createLessonContentBlock: Database.Statement<[string, string, string, number, string], void>;
         createComment: Database.Statement<[string, string, string, string], void>;
         getCommentByLessonId: Database.Statement<[string], DbComment>;
         getCommentById: Database.Statement<[string], DbComment>;
@@ -41,8 +41,8 @@ export class DatabaseService {
     };
 
     constructor(dbPath: string) {
-        // this.db = new Database(dbPath, { verbose: console.log });
-        this.db = new Database(dbPath);
+        this.db = new Database(dbPath, { verbose: console.log });
+        // this.db = new Database(dbPath);
 
         this.db.pragma('journal_mode = WAL');
         this.initializeStatements();
@@ -165,17 +165,14 @@ export class DatabaseService {
             `),
 
             createLesson: this.db.prepare(`
-                INSERT INTO lessons (id, course_id, title, slug, preamble, lesson_order) 
-                VALUES (?, ?, ?, ?, ?, (
-                    SELECT COALESCE(MAX(lesson_order), 0) + 1 
-                    FROM lessons 
-                    WHERE course_id = ?
-                ))
+                INSERT INTO lessons (id, course_id, title, slug, preamble, lesson_order)
+                VALUES (?, ?, ?, ?, ?, ?)
             `),
 
             createLessonContentBlock: this.db.prepare(`
-                INSERT INTO lesson_content_blocks (id, lesson_id, content, block_order) 
-                VALUES (?, ?, ?, ?)
+                INSERT INTO lesson_content_blocks (id, lesson_id, content, block_order)
+                SELECT ?, ?, ?, ?
+                WHERE EXISTS (SELECT 1 FROM lessons WHERE id = ?)
             `),
 
             getLessonById: this.db.prepare(`
@@ -239,14 +236,15 @@ export class DatabaseService {
             throw new DatabaseError('Failed to get course', 'DB_ERROR', err as Error);
         }
     }
-    createCourse(data: CreateCourseRequest): DbCourse {
+    createCourse(data: CreateCourseRequest): string {
         const id = generateId();
-        const slug = generateSlug(data.title);
-
+        //const slug = generateSlug(data.title);
+        const slug = data.slug;
         try {
             this.statements.createCourse.run(id, data.title, slug, data.description, data.category);
-            return this.getCourseWithLessons(id);
+            return id;
         } catch (err) {
+            // Unique constraint likely failed?
             throw new DatabaseError('Failed to create course', 'DB_ERROR', err as Error);
         }
     }
@@ -293,39 +291,37 @@ export class DatabaseService {
         }
     }
 
-    createLesson(data: CreateLessonRequest): DbLesson {
+    createLesson(data: CreateLessonRequest): string {
         const id = generateId();
-        const slug = generateSlug(data.title);
 
         try {
-            const transaction = this.db.transaction(() => {
-                // Insert lesson
-                this.statements.createLesson.run(
-                    id,
-                    data.courseId,
-                    data.title,
-                    slug,
-                    data.preamble,
-                    data.courseId
-                );
-
-                // Insert content blocks
-                data.content_blocks.forEach((block, index) => {
-                    this.statements.createLessonContentBlock.run(
-                        generateId(),
-                        id,
-                        block.content,
-                        block.lesson_order || index
-                    );
-                });
-
-                return this.getLessonById(id);
-            });
-
-            return transaction();
+            this.statements.createLesson.run(
+                id,
+                data.courseId,
+                data.title,
+                data.slug,
+                data.preamble,
+                data.lesson_order
+            );
         } catch (err) {
             throw new DatabaseError('Failed to create lesson', 'DB_ERROR', err as Error);
         }
+        try {
+            console.log("CONTENT BLOCKS:");
+            data.content_blocks.forEach((block, index) => {
+                console.log(block);
+                this.statements.createLessonContentBlock.run(
+                    generateId(),
+                    id,
+                    block.content,
+                    block.block_order,
+                    id
+                );
+            });
+        } catch (err) {
+            throw new DatabaseError('Failed to create lesson content blocks', 'DB_ERROR', err as Error);
+        }
+        return id;
     }
 
     private getLessonById(id: string): DbLesson {

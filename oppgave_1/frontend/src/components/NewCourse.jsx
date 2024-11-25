@@ -1,19 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-    categories,
-    courseCreateSteps,
-    courses
-} from "../data/data";
+
+const getCategories = async () => {
+    const categories =
+        await fetch(`http://localhost:3999/api/categories`)
+            .then((response) => response.json())
+            .then((data) => {
+                return data;
+            });
+    return categories;
+};
 
 import { useParams, useRouter } from "next/navigation";
+
+// Why was this even in the original data? Is this supposed to be 
+// retrieved from the server? If so, I don't see the point of it.
+// If the steps are to be changed, the client code also needs to be 
+// updated to accommodate the changes. In that case you might as well
+// hardcode the steps in the client code to begin with.
+const courseCreateSteps = [
+    { id: '1', name: 'Kurs' },
+    { id: '2', name: 'Leksjoner' },
+]
 
 function Create() {
     const [success, setSuccess] = useState(false);
     const [formError, setFormError] = useState(false);
     const [current, setCurrent] = useState(0);
     const [currentLesson, setCurrentLesson] = useState(0);
+    const [categories, setCategories] = useState([]);
+
     const [courseFields, setCourseFields] = useState({
         id: `${Math.floor(Math.random() * 1000 + 1)}`,
         title: "",
@@ -30,7 +47,22 @@ function Create() {
     // TODO: service file
     const createCourse = async (data) => {
         console.log("Pushing course to courses", data);
-        await courses.push(data);
+        // POST request to /api/courses
+
+        fetch("http://localhost:3999/api/courses", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Success:", data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     };
 
     const isValid = (items) => {
@@ -70,7 +102,15 @@ function Create() {
         if (lessons.length > 0 && isValid(lessons) && isValid(courseFields)) {
             setSuccess(true);
             setCurrent(2);
-            await createCourse({ ...courseFields, lessons });
+
+            // create a new lessons array that only includes the fields we want to send to the server (text)
+            // Create an array of strings filled with lesson.text
+            const transformedLessons = lessons.map((lesson) => {
+                const text = lesson.text.map((field) => field.text);
+                return { ...lesson, text };
+            });
+
+            await createCourse({ ...courseFields, lessons: transformedLessons });
             setTimeout(() => {
                 router.push("/courses");
             }, 500);
@@ -167,13 +207,17 @@ function Create() {
                 id: `${Math.floor(Math.random() * 1000 + 1)}`,
                 title: "",
                 slug: "",
-                preAmble: "",
+                preamble: "",
                 text: [],
                 order: `${lessons.length}`,
             },
         ]);
         setCurrentLesson(lessons.length);
     };
+
+    useEffect(() => {
+        getCategories().then((data) => setCategories(data));
+    }, []);
 
     return (
         <>
@@ -338,15 +382,15 @@ function Create() {
                                         onChange={handleLessonFieldChange}
                                     />
                                 </label>
-                                <label className="mb-4 flex flex-col" htmlFor="preAmble">
+                                <label className="mb-4 flex flex-col" htmlFor="preamble">
                                     <span className="mb-1 font-semibold">Ingress*</span>
                                     <input
                                         className="rounded"
                                         data-testid="form_lesson_preAmble"
                                         type="text"
-                                        name="preAmble"
-                                        id="preAmble"
-                                        value={lessons[currentLesson]?.preAmble}
+                                        name="preamble"
+                                        id="preamble"
+                                        value={lessons[currentLesson]?.preamble}
                                         onChange={handleLessonFieldChange}
                                     />
                                 </label>
@@ -448,7 +492,7 @@ function Create() {
                                         </p>
                                         <p data-testid="review_lesson_slug">Slug: {lesson?.slug}</p>
                                         <p data-testid="review_lesson_preamble">
-                                            Ingress: {lesson?.preAmble}
+                                            Ingress: {lesson?.preamble}
                                         </p>
                                         <p>Tekster: </p>
                                         <ul

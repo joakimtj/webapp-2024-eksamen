@@ -16,6 +16,15 @@ function Courses() {
         setData(filteredData);
     };
 
+    const handleDeleteCourse = (id) => {
+        fetch(`http://localhost:3999/api/courses/${id}`, {
+            method: "DELETE",
+        }).then(() => {
+            const updatedData = data.filter((course) => course.id !== id);
+            setData(updatedData);
+        });
+    }
+
     useEffect(() => {
         fetch("http://localhost:3999/api/courses")
             .then((response) => response.json())
@@ -86,6 +95,15 @@ function Courses() {
                                 href={`/courses/${course.slug}`}
                             >
                                 Til kurs
+                            </a>
+                            <a>
+                                <button
+                                    className="ml-4 text-xs font-semibold rounded px-2 py-1 bg-red-500 text-white"
+                                    data-testid="delete_button"
+                                    onClick={() => handleDeleteCourse(course.id)}
+                                >
+                                    Slett
+                                </button>
                             </a>
                         </article>
                     ))

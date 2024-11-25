@@ -104,11 +104,24 @@ export interface CommentResponse {
 }
 
 // API Request Types
-export interface CreateCourseRequest {
+
+interface LessonRequest {
   title: string;
+  slug: string;
+  preamble: string;
+  text: string[];
+  order: number;
+}
+
+export interface CreateCourseRequest {
+  id: string;
+  title: string;
+  slug: string;
   description: string;
   category: string;
+  lessons: LessonRequest[];
 }
+
 
 export interface UpdateCourseRequest {
   category: string;
@@ -118,9 +131,11 @@ export interface CreateLessonRequest {
   courseId: string;
   title: string;
   preamble: string;
+  slug: string;
+  lesson_order: number;
   content_blocks: {
     content: string;
-    lesson_order: number;
+    block_order: number;
   }[];
 }
 

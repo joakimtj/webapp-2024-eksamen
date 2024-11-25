@@ -27,7 +27,6 @@ app.get('/api/courses', (c) => {
 
 app.get('/api/courses/:id', (c) => {
 	try {
-		console.log('get course by id');
 		const id = c.req.param('id');
 		const course = db.getCourseWithLessons(id);
 		return c.json(course);
@@ -79,9 +78,35 @@ app.get('/api/courses/:id/lessons/:lesson', (c) => {
 
 app.post('/api/courses', async (c) => {
 	try {
+		// 1. Create course
+		// 2. Create lessons
+		// 3. Create lesson_content_blocks
 		const data = await c.req.json<CreateCourseRequest>();
-		const course = db.createCourse(data);
-		return c.json(course, 201);
+		console.log(data);
+		const courseId = db.createCourse(data);
+		const lessons = data.lessons;
+		lessons.forEach((lesson) => {
+			// get index of lesson
+			type content_block = {
+				content: string;
+				block_order: number;
+			}
+			const content_blocks: content_block[] = lesson.text.map((text, index) => {
+				return { content: text, block_order: index };
+			});
+			// create lesson
+			let request: CreateLessonRequest = {
+				courseId: courseId,
+				title: lesson.title,
+				preamble: lesson.preamble,
+				slug: lesson.slug,
+				lesson_order: lessons.indexOf(lesson),
+				content_blocks: content_blocks
+			};
+			const lessonId = db.createLesson(request);
+			console.log(lessonId);
+		});
+		return c.json({ message: 'Course created successfully' }, 201);
 	} catch (err) {
 		if (err instanceof DatabaseError) {
 			throw new HTTPException(400, { message: err.message });

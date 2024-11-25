@@ -74,6 +74,7 @@ function Lesson(slug) {
                 comment,
                 lesson: { slug: lessonSlug },
             });
+            // TODO
             const commentsData = await getComments(lessonSlug);
             setComments(commentsData);
             setSuccess(true);
@@ -84,10 +85,16 @@ function Lesson(slug) {
         const getContent = async () => {
             const lessonData = await getLesson(courseSlug, lessonSlug);
             const courseData = await getCourse(courseSlug);
-            //const commentsData = await getComments(lessonSlug);
             setLesson(lessonData);
             setCourse(courseData);
             setComments(lessonData.comments);
+            // Extremely hacky way of handling empty comments because
+            // the API returns an array with an empty comments object
+            // and im too lazy to fix it
+            if (lessonData.comments[0].id == null) {
+                setComments([]);
+            }
+
         };
         getContent();
     }, [courseSlug, lessonSlug]);

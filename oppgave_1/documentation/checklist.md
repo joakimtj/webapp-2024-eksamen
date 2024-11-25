@@ -4,3 +4,6 @@
     - [x] Courses
     - [x] Categories
     
+
+TODO:
+Clean up doc.md endpoints
