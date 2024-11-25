@@ -34,6 +34,7 @@ export class DatabaseService {
         createComment: Database.Statement<[string, string, string, string], void>;
         getCommentById: Database.Statement<[string], DbComment>;
         getCategories: Database.Statement<[], { name: string }>;
+        getUsers: Database.Statement<[], { name: string }>;
     };
 
     constructor(dbPath: string) {
@@ -117,7 +118,7 @@ export class DatabaseService {
                     )
                 ) as course_data
                 FROM courses c
-                WHERE c.id = ?
+                WHERE c.slug = ?
             `),
             getCoursesWithLessons: this.db.prepare(`
                 WITH lesson_comments AS (
@@ -233,6 +234,10 @@ export class DatabaseService {
 
             getCategories: this.db.prepare(`
                 SELECT name FROM categories
+            `),
+
+            getUsers: this.db.prepare(`
+                SELECT name FROM users
             `)
         };
     }
@@ -378,6 +383,15 @@ export class DatabaseService {
             return this.statements.getCategories.all().map((row) => row.name);
         } catch (err) {
             throw new DatabaseError('Failed to get categories', 'DB_ERROR', err as Error);
+        }
+    }
+
+    // Users
+    getUsers(): string[] {
+        try {
+            return this.statements.getUsers.all().map((row) => row.name);
+        } catch (err) {
+            throw new DatabaseError('Failed to get users', 'DB_ERROR', err as Error);
         }
     }
 }
