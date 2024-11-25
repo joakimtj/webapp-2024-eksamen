@@ -1,27 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-    categories,
-    courses,
-} from "../data/data";
 
 function Courses() {
     const [value, setValue] = useState("");
-    const [data, setData] = useState(courses);
+    const [data, setData] = useState([]);
+    const [categories, setCategories] = useState([]);
+    // Add a new state variable to store the original data
+    const [originalData, setOriginalData] = useState([]);
 
     const handleFilter = (event) => {
         const category = event.target.value;
         setValue(category);
-        if (category && category.length > 0) {
-            const content = courses.filter((course) =>
-                course.category.toLocaleLowerCase().includes(category.toLowerCase())
-            );
-            setData(content);
-        } else {
-            setData(courses);
-        }
+        const filteredData = category ? originalData.filter(course => course.category === category) : originalData;
+        setData(filteredData);
     };
+
+    useEffect(() => {
+        fetch("http://localhost:3999/api/courses")
+            .then((response) => response.json())
+            .then((data) => {
+                // Set both data and originalData to the fetched data
+                setData(data);
+                setOriginalData(data);
+            });
+
+        fetch("http://localhost:3999/api/categories")
+            .then((response) => response.json())
+            .then((data) => {
+                setCategories(data);
+            });
+    }, []);
 
     return (
         <>
@@ -87,7 +96,5 @@ function Courses() {
         </>
     );
 }
-
-
 
 export default Courses;

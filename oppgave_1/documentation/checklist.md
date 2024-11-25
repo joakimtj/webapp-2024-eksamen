@@ -1,3 +1,6 @@
 - [x] 1.1 (planlegge)
-- [ ] 1.2 (endringer i frontend)
+- [x] 1.2 (endringer i frontend)
 - [ ] 1.3 (endringer i backend)
+    - [x] Courses
+    - [x] Categories
+    

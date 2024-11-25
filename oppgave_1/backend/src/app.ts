@@ -128,6 +128,19 @@ app.post('/api/lessons/:lessonId/comments', async (c) => {
 	}
 });
 
+// Categories endpoint
+app.get('/api/categories', (c) => {
+	try {
+		const categories = db.getCategories();
+		return c.json(categories);
+	} catch (err) {
+		if (err instanceof DatabaseError) {
+			throw new HTTPException(500, { message: err.message });
+		}
+		throw new Error("An error occurred");
+	}
+});
+
 // Health check endpoint
 app.get('/health', (c) => {
 	return c.json({ status: 'ok' });

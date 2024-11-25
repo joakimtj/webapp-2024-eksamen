@@ -33,6 +33,7 @@ export class DatabaseService {
         createLessonContentBlock: Database.Statement<[string, string, string, number], void>;
         createComment: Database.Statement<[string, string, string, string], void>;
         getCommentById: Database.Statement<[string], DbComment>;
+        getCategories: Database.Statement<[], { name: string }>;
     };
 
     constructor(dbPath: string) {
@@ -228,6 +229,10 @@ export class DatabaseService {
 
             getCommentById: this.db.prepare(`
                 SELECT * FROM comments WHERE id = ?
+            `),
+
+            getCategories: this.db.prepare(`
+                SELECT name FROM categories
             `)
         };
     }
@@ -365,5 +370,14 @@ export class DatabaseService {
             throw new NotFoundError(`Comment with id ${id} not found`);
         }
         return comment;
+    }
+
+    // Categories
+    getCategories(): string[] {
+        try {
+            return this.statements.getCategories.all().map((row) => row.name);
+        } catch (err) {
+            throw new DatabaseError('Failed to get categories', 'DB_ERROR', err as Error);
+        }
     }
 }
