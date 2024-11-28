@@ -1,0 +1,32 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Header -->
+  <rect x="0" y="0" width="800" height="60" fill="#f0f0f0"/>
+  <text x="40" y="35" font-size="24">Statistics Dashboard</text>
+  
+  <!-- Download Section -->
+  <rect x="40" y="80" width="720" height="60" fill="#ffffff" stroke="#cccccc"/>
+  <rect x="60" y="95" width="200" height="30" fill="#4CAF50"/>
+  <text x="80" y="115" font-size="14" fill="white">Download Excel Report</text>
+  
+  <!-- Statistics Cards -->
+  <rect x="40" y="160" width="350" height="150" fill="#ffffff" stroke="#cccccc"/>
+  <text x="60" y="190" font-size="18">Total Registrations</text>
+  <text x="60" y="250" font-size="36">1,234</text>
+  
+  <rect x="410" y="160" width="350" height="150" fill="#ffffff" stroke="#cccccc"/>
+  <text x="430" y="190" font-size="18">New Registrations (Last Month)</text>
+  <text x="430" y="250" font-size="36">156</text>
+  
+  <!-- Chart Area -->
+  <rect x="40" y="330" width="720" height="250" fill="#ffffff" stroke="#cccccc"/>
+  <text x="60" y="360" font-size="18">Registrations per Event</text>
+  
+  <!-- Simple Bar Chart -->
+  <line x1="60" y1="530" x2="720" y2="530" stroke="#cccccc"/>
+  <line x1="60" y1="380" x2="60" y2="530" stroke="#cccccc"/>
+  
+  <rect x="100" y="450" width="40" height="80" fill="#4CAF50"/>
+  <rect x="200" y="430" width="40" height="100" fill="#4CAF50"/>
+  <rect x="300" y="480" width="40" height="50" fill="#4CAF50"/>
+  <rect x="400" y="400" width="40" height="130" fill="#4CAF50"/>
+</svg>

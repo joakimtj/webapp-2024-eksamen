@@ -1,0 +1,28 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Header -->
+  <rect x="0" y="0" width="800" height="80" fill="#f0f0f0"/>
+  <text x="40" y="45" font-size="24">Event Title</text>
+  
+  <!-- Main Event Info -->
+  <rect x="40" y="100" width="720" height="200" fill="#ffffff" stroke="#cccccc"/>
+  <text x="60" y="130" font-size="16">Date: 2024-03-15</text>
+  <text x="60" y="160" font-size="16">Location: Event Center</text>
+  <text x="60" y="190" font-size="16">Type: Workshop</text>
+  <text x="60" y="220" font-size="16">Available Spots: 15/20</text>
+  <text x="60" y="250" font-size="16">Price: 500 NOK</text>
+  
+  <!-- Description -->
+  <rect x="40" y="320" width="720" height="120" fill="#ffffff" stroke="#cccccc"/>
+  <text x="60" y="350" font-size="18">Description</text>
+  <text x="60" y="380" font-size="14">Event description text goes here...</text>
+  
+  <!-- Registration Form -->
+  <rect x="40" y="460" width="720" height="120" fill="#ffffff" stroke="#cccccc"/>
+  <text x="60" y="490" font-size="18">Registration Form</text>
+  <rect x="60" y="510" width="200" height="30" fill="#f5f5f5" stroke="#cccccc"/>
+  <text x="70" y="530" font-size="14">Name</text>
+  <rect x="280" y="510" width="200" height="30" fill="#f5f5f5" stroke="#cccccc"/>
+  <text x="290" y="530" font-size="14">Email</text>
+  <rect x="500" y="510" width="120" height="30" fill="#4CAF50"/>
+  <text x="520" y="530" font-size="14" fill="white">Register</text>
+</svg>
