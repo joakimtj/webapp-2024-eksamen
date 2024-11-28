@@ -1,20 +1,18 @@
 import React from 'react';
 import { EventCard } from '@/components/EventCard';
 import { useEvents } from '@/hooks/useEvents';
+import Loading from './loading-states/loading';
+import Error from './loading-states/error';
 
 const EventListing = () => {
     const { events, isLoading, error } = useEvents();
 
     if (isLoading) return (
-        <div className="flex items-center justify-center min-h-[200px]">
-            <div className="text-lg font-medium text-gray-600">Loading events...</div>
-        </div>
+        <Loading />
     );
 
     if (error) return (
-        <div className="flex items-center justify-center min-h-[200px] bg-red-50 rounded-lg">
-            <div className="text-lg font-medium text-red-600">Error: {error}</div>
-        </div>
+        <Error message={error} />
     );
 
     return (

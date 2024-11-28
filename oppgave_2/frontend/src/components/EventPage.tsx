@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Calendar, MapPin, Users, Clock, Banknote } from 'lucide-react';
 import { Event } from '@/types/Event';
 
-interface EventLandingProps extends Event { }
+interface EventPageProps extends Event { }
 
-export const EventLanding = ({
+export const EventPage = ({
     title,
     description,
     date,
@@ -13,8 +13,10 @@ export const EventLanding = ({
     price,
     event_type: type,
     slug
-}: EventLandingProps) => {
+}: EventPageProps) => {
     const [isRegistering, setIsRegistering] = useState(false);
+
+    if (price == null) price = 0;
 
     return (
         <div className="max-w-6xl mx-auto p-6">
