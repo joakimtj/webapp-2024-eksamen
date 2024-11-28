@@ -10,13 +10,11 @@ export const EventLanding = ({
     date,
     location,
     capacity,
-    registered,
     price,
     event_type: type,
     slug
 }: EventLandingProps) => {
     const [isRegistering, setIsRegistering] = useState(false);
-    const availableSpots = capacity - registered;
 
     return (
         <div className="max-w-6xl mx-auto p-6">
@@ -42,11 +40,8 @@ export const EventLanding = ({
                             <MapPin className="w-5 h-5" />
                             <span>{location}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Users className="w-5 h-5" />
-                            <span>{availableSpots} spots available</span>
-                        </div>
-                        {price > 0 && (
+
+                        {price != null && price > 0 && (
                             <div className="flex items-center gap-2">
                                 <Banknote className="w-5 h-5" />
                                 <span>{price} NOK</span>

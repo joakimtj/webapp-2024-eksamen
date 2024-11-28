@@ -7,8 +7,6 @@ interface EventCardProps extends Event { } // Alternatively type EventCardProps 
 export const EventCard = (event: EventCardProps) => {
     // const [showRegistration, setShowRegistration] = useState(false);
 
-    const availableSpots = event.capacity - event.registered;
-
     return (
         <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-6">
@@ -26,11 +24,6 @@ export const EventCard = (event: EventCardProps) => {
                             <div className="flex items-center gap-2">
                                 <MapPin className="w-5 h-5 text-gray-400" />
                                 <span>{event.location}</span>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <Users className="w-5 h-5 text-gray-400" />
-                                <span>{availableSpots} available spots</span>
                             </div>
                         </div>
                     </div>
