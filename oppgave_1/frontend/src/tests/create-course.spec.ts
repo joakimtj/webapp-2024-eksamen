@@ -76,33 +76,206 @@ test.describe("Oppgave 1 Create", () => {
       expect(isVisible).toBe(true);
     });
   });
+
+
+
   test.describe("When stepping from first to second step", () => {
-    test("Should show error if any required field are missing", async () => { });
-    test("Should show error if title field is missing", async () => { });
-    test("Should show error if slug field is missing", async () => { });
-    test("Should show error if description field is missing", async () => { });
-    test("Should show error if category field is missing", async () => { });
-    test("Should not show error if all fields are provided", async () => { });
+    test("Should show error if all required fields are missing", async () => {
+      // Click the second step button (index 1)
+      await page.getByTestId("step").nth(1).click();
+
+      // Check if form_error is visible
+      const formError = page.getByTestId("form_error");
+      await expect(formError).toBeVisible();
+    });
+
+    test("Should show error if title field is missing", async () => {
+      // Fill in all fields except title
+      await page.getByTestId("form_slug").fill("test-slug");
+      await page.getByTestId("form_description").fill("Test description");
+      await page.getByTestId("form_category").selectOption({ index: 1 });
+
+      // Try to move to next step
+      await page.getByTestId("step").nth(1).click();
+
+      // Check if form_error is visible
+      const formError = page.getByTestId("form_error");
+      await expect(formError).toBeVisible();
+    });
+
+    test("Should show error if slug field is missing", async () => {
+      // Fill in all fields except slug
+      await page.getByTestId("form_title").fill("Test title");
+      await page.getByTestId("form_description").fill("Test description");
+      await page.getByTestId("form_category").selectOption({ index: 1 });
+
+      // Try to move to next step
+      await page.getByTestId("step").nth(1).click();
+
+      // Check if form_error is visible
+      const formError = page.getByTestId("form_error");
+      await expect(formError).toBeVisible();
+    });
+
+    test("Should show error if description field is missing", async () => {
+      // Fill in all fields except description
+      await page.getByTestId("form_title").fill("Test title");
+      await page.getByTestId("form_slug").fill("test-slug");
+      await page.getByTestId("form_category").selectOption({ index: 1 });
+
+      // Try to move to next step
+      await page.getByTestId("step").nth(1).click();
+
+      // Check if form_error is visible
+      const formError = page.getByTestId("form_error");
+      await expect(formError).toBeVisible();
+    });
+
+    test("Should show error if category field is missing", async () => {
+      // Fill in all fields except category
+      await page.getByTestId("form_title").fill("Test title");
+      await page.getByTestId("form_slug").fill("test-slug");
+      await page.getByTestId("form_description").fill("Test description");
+
+      // Try to move to next step
+      await page.getByTestId("step").nth(1).click();
+
+      // Check if form_error is visible
+      const formError = page.getByTestId("form_error");
+      await expect(formError).toBeVisible();
+    });
+
+    test("Should not show error if all fields are provided", async () => {
+      // Fill in all fields
+      await page.getByTestId("form_title").fill("Test title");
+      await page.getByTestId("form_slug").fill("test-slug");
+      await page.getByTestId("form_description").fill("Test description");
+      await page.getByTestId("form_category").selectOption({ index: 1 });
+
+      // Try to move to next step
+      await page.getByTestId("step").nth(1).click();
+
+      // Check if form_error is not visible
+      const formError = page.getByTestId("form_error");
+      await expect(formError).not.toBeVisible();
+    });
   });
+
+
+
   test.describe("When at step two", () => {
-    test("Should have disabled submit btn", async () => { });
-    test("Should have no errors", async () => { });
-    test("Should have no success", async () => { });
-    test("Should have test-id lessons", async () => { });
-    test("Should have test-id form_lesson_add", async () => { });
+    test.beforeEach(async () => {
+      // Fill in all required fields.
+      // We need dummy data to pass validation
+      await page.getByTestId("form_title").fill("Test Course");
+      await page.getByTestId("form_slug").fill("test-course");
+      await page.getByTestId("form_description").fill("Test Description");
+      await page.getByTestId("form_category").selectOption({ index: 1 });
+
+      // Navigate to step two
+      const stepButtons = page.getByTestId("step");
+      await stepButtons.nth(1).click();
+    });
+
+
+    test("Should have disabled submit btn", async () => {
+      const submitButton = page.getByTestId("form_submit");
+      const isDisabled = await submitButton.isDisabled();
+      expect(isDisabled).toBe(true);
+    });
+
+    test("Should have no errors", async () => {
+      const formError = page.getByTestId("form_error");
+      await expect(formError).not.toBeVisible();
+    });
+    test("Should have no success", async () => {
+      const formSuccess = page.getByTestId("form_success");
+      await expect(formSuccess).not.toBeVisible();
+    });
+    test("Should have test-id lessons", async () => {
+      const lessons = page.getByTestId("lessons");
+      const isVisible = await lessons.isVisible();
+      expect(isVisible).toBe(true);
+    });
+    test("Should have test-id form_lesson_add", async () => {
+      const formLessonAdd = page.getByTestId("form_lesson_add");
+      const isVisible = await formLessonAdd.isVisible();
+      expect(isVisible).toBe(true);
+    });
   });
+
+
+
+
   test.describe("When added new lesson", () => {
-    test("Should have disabled submit btn", async () => { });
-    test("Should have no errors", async () => { });
-    test("Should have no success", async () => { });
-    test("Should have test-id lessons", async () => { });
-    test("Should have test-id form_lesson_add", async () => { });
-    test("Should have test-id form_lesson_add_text", async () => { });
-    test("Should have test-id form_lesson_title", async () => { });
-    test("Should have test-id form_lesson_slug", async () => { });
-    test("Should have test-id form_lesson_preAmble", async () => { });
-    test("Should have one lesson", async () => { });
+    test.beforeEach(async () => {
+      // Fill in all required fields.
+      // We need dummy data to pass validation
+      await page.getByTestId("form_title").fill("Test Course");
+      await page.getByTestId("form_slug").fill("test-course");
+      await page.getByTestId("form_description").fill("Test Description");
+      await page.getByTestId("form_category").selectOption({ index: 1 });
+
+      // Navigate to step two
+      const stepButtons = page.getByTestId("step");
+      await stepButtons.nth(1).click();
+
+      // Add a new lesson
+      const formLessonAdd = page.getByTestId("form_lesson_add");
+      await formLessonAdd.click();
+    });
+    test("Should have disabled submit btn", async () => {
+      const submitButton = page.getByTestId("form_submit");
+      const isDisabled = await submitButton.isDisabled();
+      expect(isDisabled).toBe(true);
+    });
+    test("Should have no errors", async () => {
+      const formError = page.getByTestId("form_error");
+      await expect(formError).not.toBeVisible();
+    });
+    test("Should have no success", async () => {
+      const formSuccess = page.getByTestId("form_success");
+      await expect(formSuccess).not.toBeVisible();
+    });
+    test("Should have test-id lessons", async () => {
+      const lessons = page.getByTestId("lessons");
+      const isVisible = await lessons.isVisible();
+      expect(isVisible).toBe(true);
+    });
+    test("Should have test-id form_lesson_add", async () => {
+      const formLessonAdd = page.getByTestId("form_lesson_add");
+      const isVisible = await formLessonAdd.isVisible();
+      expect(isVisible).toBe(true);
+    });
+    test("Should have test-id form_lesson_add_text", async () => {
+      const formLessonAddText = page.getByTestId("form_lesson_add_text");
+      const isVisible = await formLessonAddText.isVisible();
+      expect(isVisible).toBe(true);
+    });
+    test("Should have test-id form_lesson_title", async () => {
+      const formLessonTitle = page.getByTestId("form_lesson_title");
+      const isVisible = await formLessonTitle.isVisible();
+      expect(isVisible).toBe(true);
+    });
+    test("Should have test-id form_lesson_slug", async () => {
+      const formLessonSlug = page.getByTestId("form_lesson_slug");
+      const isVisible = await formLessonSlug.isVisible();
+      expect(isVisible).toBe(true);
+    });
+    test("Should have test-id form_lesson_preAmble", async () => {
+      const formLessonPreAmble = page.getByTestId("form_lesson_preAmble");
+      const isVisible = await formLessonPreAmble.isVisible();
+      expect(isVisible).toBe(true);
+    });
+    test("Should have one lesson", async () => {
+      const lessons = page.getByTestId("lessons");
+      const count = await lessons.count();
+      expect(count).toBe(1);
+    });
   });
+
+
+
   test.describe("When creating multiple lessons", () => {
     test("Should have disabled submit btn if title is missing", async () => { });
     test("Should have disabled submit btn if preAmble is missing", async () => { });
