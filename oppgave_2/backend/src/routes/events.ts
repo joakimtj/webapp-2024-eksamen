@@ -1,14 +1,23 @@
 import { Hono } from 'hono';
 import { AppDB } from '../services/database';
 import { Result } from '../types';
-import { Event } from '../types/models';
+import { Event, EventFilters } from '../types/models';
 
 export const events = new Hono();
 const db = new AppDB();
 
-events.get('/', (c): Response => {
+events.get('/', (c) => {
     try {
-        const events = db.getAllEvents();
+        const { month, year, event_type } = c.req.query();
+
+        const filters: EventFilters = {};
+
+        if (month) filters.month = parseInt(month);
+        if (year) filters.year = parseInt(year);
+        if (event_type) filters.event_type = event_type;
+
+        const events = db.getAllEvents(Object.keys(filters).length > 0 ? filters : undefined);
+
         return c.json<Result<Event[]>>({
             success: true,
             data: events
@@ -18,7 +27,7 @@ events.get('/', (c): Response => {
             success: false,
             error: {
                 code: 'INTERNAL_SERVER_ERROR',
-                message: err instanceof Error ? err.message : 'Unknown error occurred'
+                message: err instanceof Error ? err.message : 'Unknown error'
             }
         }, { status: 500 });
     }

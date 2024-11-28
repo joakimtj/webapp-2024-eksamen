@@ -50,3 +50,10 @@ export interface Attendee {
     phone: string;
     created_at: string;
 }
+
+export interface EventFilters {
+    month?: number;
+    year?: number;
+    event_type?: string;
+    status?: 'available' | 'full';
+}

@@ -129,12 +129,12 @@ Error Responses:
 ### Frontend
 1. URL Query Parameters:
    ```typescript
-   interface FilterParams {
-     month?: number;
-     year?: number;
-     type?: string;
-     status?: 'available' | 'full';
-   }
+   interface EventFilters {
+    month?: number;
+    year?: number;
+    event_type?: string;
+    status?: 'available' | 'full';
+    }
    ```
 
 2. Filter Component:

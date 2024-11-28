@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { nanoid } from 'nanoid';
-import type { Event, Template, Registration, Attendee, UpdateEventData } from '../types/models';
+import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters } from '../types/models';
 
 const db = new Database('app.db');
 
@@ -56,8 +56,36 @@ export class AppDB {
     `);
     }
 
-    getAllEvents(): Event[] {
-        return db.prepare('SELECT * FROM events ORDER BY date').all() as Event[];
+    getAllEvents(filters?: EventFilters): Event[] {
+        let query = 'SELECT * FROM events';
+        const params: any[] = [];
+        const conditions: string[] = [];
+
+        if (filters) {
+            if (filters.month !== undefined) {
+                conditions.push("strftime('%m', date) = ?");
+                params.push(filters.month.toString().padStart(2, '0'));
+            }
+
+            if (filters.year !== undefined) {
+                conditions.push("strftime('%Y', date) = ?");
+                params.push(filters.year.toString());
+            }
+
+            if (filters.event_type) {
+                conditions.push('event_type = ?');
+                params.push(filters.event_type);
+            }
+
+            if (conditions.length > 0) {
+                query += ' WHERE ' + conditions.join(' AND ');
+            }
+        }
+
+        query += ' ORDER BY date';
+
+        console.log('Query:', query, 'Params:', params); // For debugging
+        return db.prepare(query).all(params) as Event[];
     }
 
     getEventBySlug(slug: string): Event | null {
