@@ -175,56 +175,67 @@ interface CreateLessonRequest {
   - 400: Invalid input
   - 500: Server error
 
+### Users
+#### GET /api/users
+- Purpose: Retrieve all users
+- Response: 
+  - 200: array of names
+  ```typescript
+  string[]
+  ```
+  - 500: Server error
+
 ## Pages and Routes
 
 ### 1. Login Page (/)
 - Main landing/login page
 - Handles user authentication
 - Redirects to course listing upon success
-- API Endpoints Used: None (authentication handled separately)
+- API Endpoints Used: None
 
 ### 2. Course Listing (/courses)
 - Displays all available courses
 - Allows filtering by category
 - Links to individual course pages
-- Has button to create new course (if authorized)
+- Has button to create new course
+- Has button to delete a course
 - API Endpoints Used:
-    - GET /api/courses (retrieves all courses for listing)
+    - GET /api/courses
+      - Retrieves all courses for listing
+    - POST /api/courses/:id
+      - Deletes a specific course
     - Frontend handles category filtering locally
 
 ### 3. Course Detail (/courses/[slug])
 - Shows course information
 - Lists all lessons in the course
-- Option to delete course (if authorized)
-- Option to update course category (if authorized)
 - API Endpoints Used:
-    - GET /api/courses (to get course details)
-    - GET /api/lessons?courseId={id} (to get course lessons)
-    - DELETE /api/courses/{id} (for course deletion)
-    - PATCH /api/courses/{id} (for updating category)
+    - GET /api/courses/:id 
+      - Retrieve course information
+    - GET /api/users
+      - Retrieve all users. This is to display the list of users, similar to the project we forked from.
+- Not implemented:
+  - Option to update course category (if authorized)
 
 ### 4. Lesson View (/courses/[slug]/lessons/[lesson-slug])
 - Displays lesson content
 - Shows comments section
-- Uses text editor for content (basic textarea or TipTap)
-- Allows adding new comments
 - API Endpoints Used:
-    - GET /api/lessons (to get lesson content)
-    - GET /api/comments?lessonId={id} (to get lesson comments)
-    - POST /api/comments (to add new comments)
+    - GET /api/courses/:id/lessons/:lesson
+      - Get lesson information
+    - GET /api/courses/:id
+      - Get course information
+- Not implemented:
+  - Allows adding new comments 
 
 ### 5. New Course (/courses/new)
-- Form to create new course
+- Form to create new course with lessons
 - Input validation
-- Redirects to course detail on success
+- Redirects to courses on success
 - API Endpoints Used:
-    - POST /api/courses (to create new course)
-
-### 6. New Lesson (/courses/[slug]/lessons/new)
-- Form to create new lesson
-- Rich text editor integration
-- Input validation
-- Redirects to lesson view on success
-- API Endpoints Used:
-    - POST /api/lessons (to create new lesson)
-    - GET /api/courses (to validate course exists)
+  - GET /api/categories
+    - Retrieves a list of available categories to choose from
+  - POST /api/courses
+    - Create a new course
+- Not implemented:
+  - TipTap

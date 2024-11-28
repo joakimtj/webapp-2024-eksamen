@@ -192,18 +192,13 @@ app.get('/api/categories', (c) => {
 app.get('/api/users', (c) => {
 	try {
 		const users = db.getUsers();
-		return c.json(users);
+		return c.json(users, 200);
 	} catch (err) {
 		if (err instanceof DatabaseError) {
 			throw new HTTPException(500, { message: err.message });
 		}
 		throw new Error("An error occurred");
 	}
-});
-
-// Health check endpoint
-app.get('/health', (c) => {
-	return c.json({ status: 'ok' });
 });
 
 app.onError((err, c) => {
