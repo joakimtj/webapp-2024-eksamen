@@ -164,7 +164,7 @@ test.describe("Oppgave 1 Create", () => {
 
 
   test.describe("When at step two", () => {
-    test.beforeEach(async () => {
+    test.beforeAll(async () => {
       // Fill in all required fields.
       // We need dummy data to pass validation
       await page.getByTestId("form_title").fill("Test Course");
@@ -208,7 +208,7 @@ test.describe("Oppgave 1 Create", () => {
 
 
   test.describe("When added new lesson", () => {
-    test.beforeEach(async () => {
+    test.beforeAll(async () => {
       // Fill in all required fields.
       // We need dummy data to pass validation
       await page.getByTestId("form_title").fill("Test Course");
@@ -277,14 +277,88 @@ test.describe("Oppgave 1 Create", () => {
 
 
   test.describe("When creating multiple lessons", () => {
-    test("Should have disabled submit btn if title is missing", async () => { });
-    test("Should have disabled submit btn if preAmble is missing", async () => { });
-    test("Should have disabled submit btn if slug is missing", async () => { });
-    test("Should have disabled submit btn if text is missing", async () => { });
-    test("Should have disabled submit btn if all fields are added on last lesson", async () => { });
-    test("Should have enabled submit btn if all fields are added on all lesson", async () => { });
-    test("Should disable publish button if new lesson is added", async () => { });
+    test.beforeAll(async () => {
+      // Fill in all required fields.
+      // We need dummy data to pass validation
+      await page.getByTestId("form_title").fill("Test Course");
+      await page.getByTestId("form_slug").fill("test-course");
+      await page.getByTestId("form_description").fill("Test Description");
+      await page.getByTestId("form_category").selectOption({ index: 1 });
+
+      // Navigate to step two
+      const stepButtons = page.getByTestId("step");
+      await stepButtons.nth(1).click();
+
+      // Add a new lesson
+      const formLessonAdd = page.getByTestId("form_lesson_add");
+      await formLessonAdd.click();
+      // Count the lesson buttons instead of the container
+      let lessonButtons = page.getByTestId("select_lesson_btn");
+      let count = await lessonButtons.count();
+      expect(count).toBe(1);
+
+      // Fill in all required fields for lesson
+      await page.getByTestId("form_lesson_title").fill("Test Lesson");
+      await page.getByTestId("form_lesson_slug").fill("test-lesson");
+      await page.getByTestId("form_lesson_preAmble").fill("Test preAmble");
+      await page.getByTestId("form_lesson_text").fill("Test text");
+
+      // Add another lesson
+      await formLessonAdd.click();
+      lessonButtons = page.getByTestId("select_lesson_btn");
+      count = await lessonButtons.count();
+      expect(count).toBe(2);
+    });
+    test("Should have disabled submit btn if title is missing", async () => {
+      // Fill in all required fields except title
+      await page.getByTestId("form_lesson_slug").fill("test-lesson");
+      await page.getByTestId("form_lesson_preAmble").fill("Test preAmble");
+      await page.getByTestId("form_lesson_text").fill("Test text");
+      const submitButton = page.getByTestId("form_submit");
+      const isDisabled = await submitButton.isDisabled();
+      expect(isDisabled).toBe(true);
+    });
+    test("Should have disabled submit btn if preAmble is missing", async () => {
+      // Fill in all required fields except preAmble
+      await page.getByTestId("form_lesson_title").fill("Test Lesson");
+      await page.getByTestId("form_lesson_slug").fill("test-lesson");
+      await page.getByTestId("form_lesson_text").fill("Test text");
+      const submitButton = page.getByTestId("form_submit");
+      const isDisabled = await submitButton.isDisabled();
+      expect(isDisabled).toBe(true);
+    });
+    test("Should have disabled submit btn if slug is missing", async () => {
+      // Fill in all required fields except slug
+      await page.getByTestId("form_lesson_title").fill("Test Lesson");
+      await page.getByTestId("form_lesson_preAmble").fill("Test preAmble");
+      await page.getByTestId("form_lesson_text").fill("Test text");
+      const submitButton = page.getByTestId("form_submit");
+      const isDisabled = await submitButton.isDisabled();
+      expect(isDisabled).toBe(true);
+    });
+    test("Should have disabled submit btn if text is missing", async () => {
+      // Fill in all required fields except text
+      await page.getByTestId("form_lesson_title").fill("Test Lesson");
+      await page.getByTestId("form_lesson_slug").fill("test-lesson");
+      await page.getByTestId("form_lesson_preAmble").fill("Test preAmble");
+      const submitButton = page.getByTestId("form_submit");
+      const isDisabled = await submitButton.isDisabled();
+      expect(isDisabled).toBe(true);
+    });
+
+    /* Huh??? */
+    // test("Should have disabled submit btn if all fields are added on last lesson", async () => { });
+    // test("Should have enabled submit btn if all fields are added on all lesson", async () => { });
+
+
+    test("Should disable publish button if new lesson is added", async () => {
+      // Check if publish button is disabled
+      const publishButton = page.getByTestId("form_submit");
+      const isDisabled = await publishButton.isDisabled();
+      expect(isDisabled).toBe(true);
+    });
   });
+
   test.describe("When creating multiple lessons with multiple textboxes", () => {
     test("Should have enabled publish button if all text fields are valid", async () => { });
   });
