@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { nanoid } from 'nanoid';
-import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters } from '../types/models';
+import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters, CreateRegistrationData, CreateAttendeeData } from '../types/models';
 
 const db = new Database('app.db');
 
@@ -54,6 +54,10 @@ export class AppDB {
         created_at TIMESTAMP NOT NULL
       );
     `);
+    }
+
+    getEventById(id: string): Event | null {
+        return db.prepare('SELECT * FROM events WHERE id = ?').get(id) as Event | null;
     }
 
     getAllEvents(filters?: EventFilters): Event[] {
@@ -198,6 +202,32 @@ export class AppDB {
     `).get({ ...data, id, updated_at: now }) as Registration;
     }
 
+    createRegistration(data: CreateRegistrationData): Registration {
+        const now = new Date().toISOString();
+        const id = `reg_${nanoid()}`; // Using prefix for clarity
+
+        const result = db.prepare(`
+          INSERT INTO registrations (
+            id,
+            event_id,
+            status,
+            total_price,
+            created_at,
+            updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?)
+          RETURNING *
+        `).get(
+            id,
+            data.event_id,
+            data.status,
+            data.total_price,
+            now,
+            now
+        ) as Registration;
+
+        return result;
+    }
+
     // Attendees
     getAllAttendees(): Attendee[] {
         return db.prepare('SELECT * FROM attendees').all() as Attendee[];
@@ -228,5 +258,31 @@ export class AppDB {
       WHERE id = @id
       RETURNING *
     `).get({ ...data, id }) as Attendee;
+    }
+
+    createAttendee(data: CreateAttendeeData): Attendee {
+        const now = new Date().toISOString();
+        const id = `att_${nanoid()}`; // Using prefix for clarity
+
+        const result = db.prepare(`
+          INSERT INTO attendees (
+            id,
+            registration_id,
+            name,
+            email,
+            phone,
+            created_at
+          ) VALUES (?, ?, ?, ?, ?, ?)
+          RETURNING *
+        `).get(
+            id,
+            data.registration_id,
+            data.name,
+            data.email,
+            data.phone,
+            now
+        ) as Attendee;
+
+        return result;
     }
 }

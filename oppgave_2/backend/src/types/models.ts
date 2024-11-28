@@ -57,3 +57,16 @@ export interface EventFilters {
     event_type?: string;
     status?: 'available' | 'full';
 }
+
+export interface CreateRegistrationData {
+    event_id: string;
+    status: string;
+    total_price: number;
+}
+
+export interface CreateAttendeeData {
+    registration_id: string;
+    name: string;
+    email: string;
+    phone: string;
+}

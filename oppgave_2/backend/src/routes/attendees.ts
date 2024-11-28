@@ -88,3 +88,52 @@ attendees.delete('/:id', (c) => {
         }, { status: 500 });
     }
 });
+
+attendees.post('/', async (c) => {
+    try {
+        const body = await c.req.json();
+
+        // Validate required fields
+        if (!body.registration_id || !body.name || !body.email || !body.phone) {
+            return c.json<Result<Attendee>>({
+                success: false,
+                error: {
+                    code: 'INVALID_INPUT',
+                    message: 'Missing required fields'
+                }
+            }, { status: 400 });
+        }
+
+        // Verify registration exists
+        const registration = db.getRegistrationById(body.registration_id);
+        if (!registration) {
+            return c.json<Result<Attendee>>({
+                success: false,
+                error: {
+                    code: 'REGISTRATION_NOT_FOUND',
+                    message: 'Registration not found'
+                }
+            }, { status: 404 });
+        }
+
+        const attendee = db.createAttendee({
+            registration_id: body.registration_id,
+            name: body.name,
+            email: body.email,
+            phone: body.phone
+        });
+
+        return c.json<Result<Attendee>>({
+            success: true,
+            data: attendee
+        });
+    } catch (err) {
+        return c.json<Result<Attendee>>({
+            success: false,
+            error: {
+                code: 'INTERNAL_SERVER_ERROR',
+                message: err instanceof Error ? err.message : 'Unknown error'
+            }
+        }, { status: 500 });
+    }
+});
