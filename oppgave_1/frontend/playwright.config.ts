@@ -41,7 +41,7 @@ export default defineConfig({
     //   stderr: "pipe",
     // },
     {
-      command: "pnpm run dev",
+      command: "npm run dev",
       url: "http://localhost:4000",
       reuseExistingServer: !process.env.CI,
       cwd: path.resolve(import.meta.dirname),
