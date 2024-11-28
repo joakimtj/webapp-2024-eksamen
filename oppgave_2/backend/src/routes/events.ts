@@ -1,10 +1,31 @@
 import { Hono } from 'hono';
 import { AppDB } from '../services/database';
 import { Result } from '../types';
-import { Event, EventFilters } from '../types/models';
+import { Event, EventFilters, FilterOptions } from '../types/models';
 
 export const events = new Hono();
 const db = new AppDB();
+
+// Order matters for the /filters route. If it doesn't come first, it will be treated as a slug
+
+events.get('/filters', (c) => {
+    try {
+        const filterOptions = db.getFilterOptions();
+
+        return c.json<Result<FilterOptions>>({
+            success: true,
+            data: filterOptions
+        });
+    } catch (err) {
+        return c.json<Result<FilterOptions>>({
+            success: false,
+            error: {
+                code: 'INTERNAL_SERVER_ERROR',
+                message: err instanceof Error ? err.message : 'Unknown error'
+            }
+        }, { status: 500 });
+    }
+});
 
 events.get('/', (c) => {
     try {

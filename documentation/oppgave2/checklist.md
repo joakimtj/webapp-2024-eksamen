@@ -16,6 +16,7 @@
     - [x] EventListing loads all events from backen sqlite db
     - [x] EventPage (Landing page) when navigated to loads specified event
     - [x] RegistrationForm sends registration and attendees to the backend db
+    - [x] Event filter populates with info from the available events in the db 
 - [ ] 2.5 (frontend: lag grensesnittet for admin) -  Aktuelle regler må ivaretas
 - [ ] 2.6 (backend: lag endepunkter for kravene som omhandler admin) - Aktuelle regler må ivaretas
 - [ ] 2.7 (koble sammen frontend og backend for admin) - Aktuelle regler må ivaretas

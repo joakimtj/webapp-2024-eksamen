@@ -70,3 +70,9 @@ export interface CreateAttendeeData {
     email: string;
     phone: string;
 }
+
+export interface FilterOptions {
+    event_types: string[];
+    years: number[];
+    months: number[];
+}

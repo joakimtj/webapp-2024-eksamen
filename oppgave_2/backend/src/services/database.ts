@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { nanoid } from 'nanoid';
-import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters, CreateRegistrationData, CreateAttendeeData } from '../types/models';
+import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters, CreateRegistrationData, CreateAttendeeData, FilterOptions } from '../types/models';
 
 const db = new Database('app.db');
 
@@ -285,4 +285,33 @@ export class AppDB {
 
         return result;
     }
+
+    // Filters
+
+    getFilterOptions(): FilterOptions {
+        const event_types = db.prepare(`
+          SELECT DISTINCT event_type 
+          FROM events 
+          ORDER BY event_type
+        `).all().map(row => row.event_type);
+
+        const years = db.prepare(`
+          SELECT DISTINCT strftime('%Y', date) as year 
+          FROM events 
+          ORDER BY year
+        `).all().map(row => parseInt(row.year));
+
+        const months = db.prepare(`
+          SELECT DISTINCT strftime('%m', date) as month 
+          FROM events 
+          ORDER BY month
+        `).all().map(row => parseInt(row.month));
+
+        return {
+            event_types,
+            years,
+            months
+        };
+    }
+
 }
