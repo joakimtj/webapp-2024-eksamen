@@ -1,9 +1,9 @@
 "use client";
 
-export default function Home() {
+export default function Page() {
     return <main>
-        <EventListing></EventListing>
+        <EventLanding />
     </main>;
 }
-import EventListing from "@/components/EventListing";
+import { EventLanding } from "@/components/EventLanding";
 import React from "react";
