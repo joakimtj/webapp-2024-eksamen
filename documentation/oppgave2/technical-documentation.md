@@ -5,43 +5,43 @@
 ### Events
 - Base path: `/api/events`
 
-| Verb   | Endpoint                    | Description                           |
-|--------|----------------------------|---------------------------------------|
-| GET    | /api/events                | List all events (with filtering)      |
-| GET    | /api/events/{id}           | Get specific event                    |
-| POST   | /api/events                | Create new event                      |
-| PUT    | /api/events/{id}           | Update event                          |
-| DELETE | /api/events/{id}           | Delete event                          |
+| Verb   | Endpoint         | Description                      |
+| ------ | ---------------- | -------------------------------- |
+| GET    | /api/events      | List all events (with filtering) |
+| GET    | /api/events/{id} | Get specific event               |
+| POST   | /api/events      | Create new event                 |
+| PUT    | /api/events/{id} | Update event                     |
+| DELETE | /api/events/{id} | Delete event                     |
 
 ### Templates
 - Base path: `/api/templates`
 
-| Verb   | Endpoint                    | Description                           |
-|--------|----------------------------|---------------------------------------|
-| GET    | /api/templates             | List all templates                    |
-| GET    | /api/templates/{id}        | Get specific template                 |
-| POST   | /api/templates             | Create new template                   |
-| PUT    | /api/templates/{id}        | Update template                       |
-| DELETE | /api/templates/{id}        | Delete template                       |
+| Verb   | Endpoint            | Description           |
+| ------ | ------------------- | --------------------- |
+| GET    | /api/templates      | List all templates    |
+| GET    | /api/templates/{id} | Get specific template |
+| POST   | /api/templates      | Create new template   |
+| PUT    | /api/templates/{id} | Update template       |
+| DELETE | /api/templates/{id} | Delete template       |
 
 ### Registrations
 - Base path: `/api/registrations`
 
-| Verb   | Endpoint                    | Description                           |
-|--------|----------------------------|---------------------------------------|
-| GET    | /api/registrations         | List all registrations                |
-| GET    | /api/registrations/{id}    | Get specific registration             |
-| POST   | /api/registrations         | Create new registration               |
-| PUT    | /api/registrations/{id}    | Update registration status            |
-| DELETE | /api/registrations/{id}    | Delete registration                   |
+| Verb   | Endpoint                | Description                |
+| ------ | ----------------------- | -------------------------- |
+| GET    | /api/registrations      | List all registrations     |
+| GET    | /api/registrations/{id} | Get specific registration  |
+| POST   | /api/registrations      | Create new registration    |
+| PUT    | /api/registrations/{id} | Update registration status |
+| DELETE | /api/registrations/{id} | Delete registration        |
 
 ### Statistics
 - Base path: `/api/statistics`
 
-| Verb   | Endpoint                    | Description                           |
-|--------|----------------------------|---------------------------------------|
-| GET    | /api/statistics/overview    | Get overview statistics               |
-| GET    | /api/statistics/export      | Export data to Excel                  |
+| Verb | Endpoint                 | Description             |
+| ---- | ------------------------ | ----------------------- |
+| GET  | /api/statistics/overview | Get overview statistics |
+| GET  | /api/statistics/export   | Export data to Excel    |
 
 ## 2. API Request/Response Specifications
 
@@ -244,57 +244,47 @@ async function createEventFromTemplate(
 
 ```sql
 CREATE TABLE templates (
-  id UUID PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  event_type VARCHAR(100) NOT NULL,
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  event_type TEXT NOT NULL,
   default_capacity INTEGER,
   default_price DECIMAL(10,2),
-  rules JSONB NOT NULL,
+  rules TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE events (
-  id UUID PRIMARY KEY,
-  slug VARCHAR(255) UNIQUE NOT NULL,
-  title VARCHAR(255) NOT NULL,
+  id TEXT PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
   description TEXT,
-  event_type VARCHAR(100) NOT NULL,
+  event_type TEXT NOT NULL,
   date TIMESTAMP NOT NULL,
-  location VARCHAR(255) NOT NULL,
+  location TEXT NOT NULL,
   capacity INTEGER NOT NULL,
   price DECIMAL(10,2),
-  is_private BOOLEAN NOT NULL DEFAULT false,
-  template_id UUID REFERENCES templates(id),
-  rules JSONB NOT NULL,
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE registrations (
-  id UUID PRIMARY KEY,
-  event_id UUID REFERENCES events(id),
-  status VARCHAR(50) NOT NULL,
+  id TEXT PRIMARY KEY,
+  event_id TEXT REFERENCES events(id),
+  status TEXT NOT NULL,
   total_price DECIMAL(10,2) NOT NULL,
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE attendees (
-  id UUID PRIMARY KEY,
-  registration_id UUID REFERENCES registrations(id),
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  phone VARCHAR(50) NOT NULL,
+  id TEXT PRIMARY KEY,
+  registration_id TEXT REFERENCES registrations(id),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL
 );
-
--- Indexes
-CREATE INDEX idx_events_date ON events(date);
-CREATE INDEX idx_events_type ON events(event_type);
-CREATE INDEX idx_events_template ON events(template_id);
-CREATE INDEX idx_registrations_event ON registrations(event_id);
-CREATE INDEX idx_attendees_registration ON attendees(registration_id);
 ```
 
 ## 8. Key Relationships

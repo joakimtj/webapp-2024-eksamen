@@ -4,7 +4,7 @@ export interface Event {
     description: string;
     date: string;
     location: string;
-    type: string;
+    event_type: string;
     capacity: number;
     registered: number;
     price: number;

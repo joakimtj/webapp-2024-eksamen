@@ -37,7 +37,7 @@ const EventListing = () => {
                 {sampleEvents.map(event => (
                     <EventCard key={event.id} id={event.id} registered={event.registered}
                         title={event.title} description={event.description} date={event.date} location={event.location}
-                        type={event.type} capacity={event.capacity} price={event.price} slug={event.slug} />
+                        event_type={event.type} capacity={event.capacity} price={event.price} slug={event.slug} />
                 ))}
             </div>
         </div>

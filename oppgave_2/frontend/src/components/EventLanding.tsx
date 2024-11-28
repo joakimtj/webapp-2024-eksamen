@@ -12,7 +12,7 @@ export const EventLanding = ({
     capacity,
     registered,
     price,
-    type,
+    event_type: type,
     slug
 }: EventLandingProps) => {
     const [isRegistering, setIsRegistering] = useState(false);
