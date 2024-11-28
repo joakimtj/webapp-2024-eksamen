@@ -1,5 +1,6 @@
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { Event } from '@/types/Event';
+import Link from 'next/link';
 
 interface EventCardProps extends Event { } // Alternatively type EventCardProps = Event;
 
@@ -38,14 +39,10 @@ export const EventCard = (event: EventCardProps) => {
                         <div className="text-xl font-bold mb-2">
                             {event.price} NOK
                         </div>
-                        <a href={event.slug}>
-                            <button
-                                onClick={() => { }}
-                                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-                            >
-                                Register
-                            </button>
-                        </a>
+                        <Link href={`/events/${event.slug}`}
+                            className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
+                            Go to event
+                        </Link>
                     </div>
                 </div>
 
