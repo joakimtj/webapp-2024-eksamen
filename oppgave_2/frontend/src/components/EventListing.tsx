@@ -59,9 +59,9 @@ const EventListing = () => {
                         onChange={(e) => setSelectedType(e.target.value)}
                     >
                         <option value="all">All Types</option>
-                        <option value="workshop">Workshop</option>
-                        <option value="conference">Conference</option>
-                        <option value="seminar">Seminar</option>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Seminar">Seminar</option>
                     </select>
                 </div>
             </div>
