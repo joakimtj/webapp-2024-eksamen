@@ -6,7 +6,8 @@
     - [x] Lessons
     - [x] New course
     - [ ] Ability to write new comments (DLC)
-    - [ ] Ability to create new user (DLC)
+    - [x] Ability to create new user (DLC)
+        - [ ] Admin checkmark (no admin functionality in db yet, DLC)
 - [ ] 1.4 Editor
 - [ ] 1.5 Testing
     - [x] When showing create page
@@ -20,4 +21,4 @@
 TODO:
 - Clean up doc.md endpoints
 - Comments?
-- User auth?
+

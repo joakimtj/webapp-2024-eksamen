@@ -1,44 +1,63 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
+import { Course, GetCategoriesResponse, GetCoursesResponse } from "../types";
 
 function Courses() {
-    const [value, setValue] = useState("");
-    const [data, setData] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [value, setValue] = useState<string>("");
+    const [data, setData] = useState<Course[]>([]);
+    const [categories, setCategories] = useState<string[]>([]);
     // Add a new state variable to store the original data
-    const [originalData, setOriginalData] = useState([]);
+    const [originalData, setOriginalData] = useState<Course[]>([]);
 
-    const handleFilter = (event) => {
+    const handleFilter = (event: ChangeEvent<HTMLSelectElement>) => {
         const category = event.target.value;
         setValue(category);
-        const filteredData = category ? originalData.filter(course => course.category === category) : originalData;
+        const filteredData = category
+            ? originalData.filter(course => course.category === category)
+            : originalData;
         setData(filteredData);
     };
 
-    const handleDeleteCourse = (id) => {
-        fetch(`http://localhost:3999/api/courses/${id}`, {
-            method: "DELETE",
-        }).then(() => {
+    const handleDeleteCourse = async (id: string): Promise<void> => {
+        try {
+            const response = await fetch(`http://localhost:3999/api/courses/${id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete course');
+            }
+
             const updatedData = data.filter((course) => course.id !== id);
             setData(updatedData);
-        });
-    }
+            setOriginalData(prev => prev.filter(course => course.id !== id));
+        } catch (error) {
+            console.error('Error deleting course:', error);
+            // Here you might want to add error handling UI feedback
+        }
+    };
 
     useEffect(() => {
-        fetch("http://localhost:3999/api/courses")
-            .then((response) => response.json())
-            .then((data) => {
-                // Set both data and originalData to the fetched data
-                setData(data);
-                setOriginalData(data);
-            });
+        const fetchData = async () => {
+            try {
+                // Fetch courses
+                const coursesResponse = await fetch("http://localhost:3999/api/courses");
+                const coursesData: GetCoursesResponse = await coursesResponse.json();
+                setData(coursesData);
+                setOriginalData(coursesData);
 
-        fetch("http://localhost:3999/api/categories")
-            .then((response) => response.json())
-            .then((data) => {
-                setCategories(data);
-            });
+                // Fetch categories
+                const categoriesResponse = await fetch("http://localhost:3999/api/categories");
+                const categoriesData: GetCategoriesResponse = await categoriesResponse.json();
+                setCategories(categoriesData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                // Here you might want to add error handling UI feedback
+            }
+        };
+
+        fetchData();
     }, []);
 
     return (
@@ -96,15 +115,13 @@ function Courses() {
                             >
                                 Til kurs
                             </a>
-                            <a>
-                                <button
-                                    className="ml-4 text-xs font-semibold rounded px-2 py-1 bg-red-500 text-white"
-                                    data-testid="delete_button"
-                                    onClick={() => handleDeleteCourse(course.id)}
-                                >
-                                    Slett
-                                </button>
-                            </a>
+                            <button
+                                className="ml-4 text-xs font-semibold rounded px-2 py-1 bg-red-500 text-white"
+                                data-testid="delete_button"
+                                onClick={() => handleDeleteCourse(course.id)}
+                            >
+                                Slett
+                            </button>
                         </article>
                     ))
                 ) : (
