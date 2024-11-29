@@ -18,14 +18,29 @@ function SignUp() {
     typeof val === "string" ? val.length === 0 : false
   );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(false);
     setSuccess(false);
     if (formIsValid.length === 0) {
       setSuccess(true);
+
+      const response = await fetch("http://localhost:3999/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fields),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create user");
+      }
+
+      console.log("User created successfully");
+
       setTimeout(() => {
-        router.push("/kurs");
+        router.push("/courses");
       }, 500);
     } else {
       setFormError(true);

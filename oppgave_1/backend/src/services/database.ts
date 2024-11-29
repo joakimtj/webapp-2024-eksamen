@@ -38,6 +38,7 @@ export class DatabaseService {
         getCommentById: Database.Statement<[string], DbComment>;
         getCategories: Database.Statement<[], { name: string }>;
         getUsers: Database.Statement<[], { name: string }>;
+        createUser: Database.Statement<[string, string, string], void>;
     };
 
     constructor(dbPath: string) {
@@ -209,6 +210,10 @@ export class DatabaseService {
 
             getUsers: this.db.prepare(`
                 SELECT name FROM users
+            `),
+
+            createUser: this.db.prepare(`
+                INSERT INTO users (id, name, email) VALUES (?, ?, ?)
             `)
         };
     }
@@ -375,6 +380,15 @@ export class DatabaseService {
             return this.statements.getUsers.all().map((row) => row.name);
         } catch (err) {
             throw new DatabaseError('Failed to get users', 'DB_ERROR', err as Error);
+        }
+    }
+
+    createUser(name: string, email: string): void {
+        try {
+            const id = generateId();
+            this.statements.createUser.run(id, name, email);
+        } catch (err) {
+            throw new DatabaseError('Failed to create user', 'DB_ERROR', err as Error);
         }
     }
 }

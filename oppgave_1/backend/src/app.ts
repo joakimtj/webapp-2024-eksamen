@@ -225,20 +225,20 @@ app.get('/api/users', (c) => {
 	}
 });
 
-/*
+
 app.post('/api/users', async (c) => {
 	try {
 		const data = await c.req.json();
-		const user = db.createUser(data);
-		return c.json(user, 201);
+		db.createUser(data.name, data.email);
+		return c.json({ message: 'User created successfully' }, 201);
 	} catch (err) {
 		if (err instanceof DatabaseError) {
-			throw new HTTPException(400, { message: err.message });
+			throw new HTTPException(500, { message: err.message });
 		}
 		throw new Error("An error occurred");
 	}
 });
-*/
+
 
 app.onError((err, c) => {
 	console.error(err);
