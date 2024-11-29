@@ -73,8 +73,31 @@ app.get('/api/courses/:id/lessons/:lesson', (c) => {
 	}
 });
 
-
-
+`
+{
+  "id": "465",
+  "title": "asfasf",
+  "slug": "asfasf",
+  "description": "asf",
+  "category": "Marketing",
+  "lessons": [
+    {
+      "id": "292",
+      "title": "a",
+      "slug": "f",
+      "preamble": "a",
+      "text": [
+        {
+          "id": "790",
+          "text": "a"
+        }
+      ],
+      "comments": [],
+      "order": "0"
+    }
+  ]
+}
+`
 
 app.post('/api/courses', async (c) => {
 	try {
@@ -103,6 +126,7 @@ app.post('/api/courses', async (c) => {
 				lesson_order: lessons.indexOf(lesson),
 				content_blocks: content_blocks
 			};
+			console.log(request);
 			const lessonId = db.createLesson(request);
 			console.log(lessonId);
 		});
@@ -200,6 +224,21 @@ app.get('/api/users', (c) => {
 		throw new Error("An error occurred");
 	}
 });
+
+/*
+app.post('/api/users', async (c) => {
+	try {
+		const data = await c.req.json();
+		const user = db.createUser(data);
+		return c.json(user, 201);
+	} catch (err) {
+		if (err instanceof DatabaseError) {
+			throw new HTTPException(400, { message: err.message });
+		}
+		throw new Error("An error occurred");
+	}
+});
+*/
 
 app.onError((err, c) => {
 	console.error(err);

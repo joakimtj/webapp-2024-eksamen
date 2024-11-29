@@ -1,71 +1,81 @@
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { Course, LessonType, Comment, LessonProps } from "../types";
 
-import { useState, useEffect } from "react";
-
-const getLesson = async (courseSlug, lessonSlug) => {
-    const lesson =
-        await fetch(`http://localhost:3999/api/courses/${courseSlug}/lessons/${lessonSlug}`)
-            .then((response) => response.json())
-            .then((data) => {
-                return data;
-            });
-    return lesson;
+const getLesson = async (courseSlug: string, lessonSlug: string): Promise<LessonType> => {
+    try {
+        const response = await fetch(
+            `http://localhost:3999/api/courses/${courseSlug}/lessons/${lessonSlug}`
+        );
+        if (!response.ok) {
+            throw new Error('Failed to fetch lesson');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching lesson:', error);
+        throw error;
+    }
 };
 
-
-const getCourse = async (slug) => {
-    const course =
-        await fetch(`http://localhost:3999/api/courses/${slug}`)
-            .then((response) => response.json())
-            .then((data) => {
-                return data;
-            });
-    return course;
+const getCourse = async (slug: string): Promise<Course> => {
+    try {
+        const response = await fetch(`http://localhost:3999/api/courses/${slug}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch course');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching course:', error);
+        throw error;
+    }
 };
 
-/*
-const getComments = async (lessonSlug) => {
-    const lessons =
-        await fetch(`http://localhost:3999/api/lessons/${lessonSlug}/comments`)
-            .then((response) => response.json())
-            .then((data) => {
-                return data;
-            });
-    return lessons;
-};*/
+interface CommentFormData {
+    id: string;
+    createdBy: {
+        id: number;
+        name: string;
+    };
+    comment: string;
+    lesson: {
+        slug: string;
+    };
+}
 
-const createComment = async (data) => {
-    await comments.push(data);
+const createComment = async (data: CommentFormData): Promise<void> => {
+    // TODO: Implement actual API call
+    // For now, just simulating comment creation
+    console.log("Creating comment:", data);
 };
 
+function Lesson({ courseSlug, lessonSlug }: LessonProps) {
+    const [success, setSuccess] = useState<boolean>(false);
+    const [formError, setFormError] = useState<boolean>(false);
+    const [lessonComments, setComments] = useState<Comment[]>([]);
+    const [comment, setComment] = useState<string>("");
+    const [name, setName] = useState<string>("");
+    const [lesson, setLesson] = useState<LessonType | null>(null);
+    const [course, setCourse] = useState<Course | null>(null);
 
-function Lesson(slug) {
-    const [success, setSuccess] = useState(false);
-    const [formError, setFormError] = useState(false);
-    const [lessonComments, setComments] = useState([]);
-    const [comment, setComment] = useState("");
-    const [name, setName] = useState("");
-    const [lesson, setLesson] = useState(null);
-    const [course, setCourse] = useState(null);
-
-    const lessonSlug = slug.lessonSlug;
-    const courseSlug = slug.courseSlug;
-
-    const handleComment = (event) => {
+    const handleComment = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setComment(event.target.value);
     };
 
-    const handleName = (event) => {
+    const handleName = (event: ChangeEvent<HTMLInputElement>) => {
         setName(event.target.value);
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setFormError(false);
         setSuccess(false);
+
         if (!comment || !name) {
             setFormError(true);
-        } else {
-            await createComment({
+            return;
+        }
+
+        try {
+            const commentData: CommentFormData = {
                 id: `${Math.floor(Math.random() * 1000 + 1)}`,
                 createdBy: {
                     id: Math.floor(Math.random() * 1000 + 1),
@@ -73,29 +83,46 @@ function Lesson(slug) {
                 },
                 comment,
                 lesson: { slug: lessonSlug },
-            });
-            // TODO
-            const commentsData = await getComments(lessonSlug);
-            setComments(commentsData);
+            };
+
+            await createComment(commentData);
+
+            // TODO: Implement getComments function and update comments
+            // const commentsData = await getComments(lessonSlug);
+            // setComments(commentsData);
+
             setSuccess(true);
+            setComment("");
+            setName("");
+        } catch (error) {
+            console.error('Error creating comment:', error);
+            setFormError(true);
         }
     };
 
     useEffect(() => {
         const getContent = async () => {
-            const lessonData = await getLesson(courseSlug, lessonSlug);
-            const courseData = await getCourse(courseSlug);
-            setLesson(lessonData);
-            setCourse(courseData);
-            setComments(lessonData.comments);
-            // Extremely hacky way of handling empty comments because
-            // the API returns an array with an empty comments object
-            // and im too lazy to fix it
-            if (lessonData.comments[0].id == null) {
-                setComments([]);
-            }
+            try {
+                const [lessonData, courseData] = await Promise.all([
+                    getLesson(courseSlug, lessonSlug),
+                    getCourse(courseSlug)
+                ]);
 
+                setLesson(lessonData);
+                setCourse(courseData);
+
+                // Set comments from lesson data
+                if (lessonData.comments?.[0]?.id == null) {
+                    setComments([]);
+                } else {
+                    setComments(lessonData.comments);
+                }
+            } catch (error) {
+                console.error('Error fetching content:', error);
+                // Here you might want to add error handling UI feedback
+            }
         };
+
         getContent();
     }, [courseSlug, lessonSlug]);
 
@@ -120,7 +147,7 @@ function Lesson(slug) {
             >
                 {lesson?.preamble}
             </p>
-            {lesson?.content_blocks?.length > 1 &&
+            {lesson?.content_blocks && lesson.content_blocks.length > 1 &&
                 lesson.content_blocks.map((text) => (
                     <p
                         data-testid="lesson_text"
@@ -153,13 +180,12 @@ function Lesson(slug) {
                         </span>
                         <textarea
                             data-testid="form_textarea"
-                            type="text"
                             name="comment"
                             id="comment"
                             value={comment}
                             onChange={handleComment}
                             className="w-full rounded bg-slate-100"
-                            cols="30"
+                            cols={30}
                         />
                     </label>
                     <button
@@ -169,23 +195,23 @@ function Lesson(slug) {
                     >
                         Legg til kommentar
                     </button>
-                    {formError ? (
+                    {formError && (
                         <p className="font-semibold text-red-500" data-testid="form_error">
                             Fyll ut alle felter med *
                         </p>
-                    ) : null}
-                    {success ? (
+                    )}
+                    {success && (
                         <p
                             className="font-semibold text-emerald-500"
                             data-testid="form_success"
                         >
                             Skjema sendt
                         </p>
-                    ) : null}
+                    )}
                 </form>
                 <ul className="mt-8" data-testid="comments_list">
-                    {lessonComments?.length > 0
-                        ? lessonComments.map((c) => (
+                    {lessonComments?.length > 0 &&
+                        lessonComments.map((c) => (
                             <li
                                 className="mb-6 rounded border border-slate-200 px-4 py-6"
                                 key={c.id}
@@ -195,8 +221,7 @@ function Lesson(slug) {
                                 </h5>
                                 <p data-testid="user_comment">{c.comment}</p>
                             </li>
-                        ))
-                        : null}
+                        ))}
                 </ul>
             </section>
         </div>
