@@ -1,21 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { SignUpFields } from "../types";
 
 function SignUp() {
-  const [success, setSuccess] = useState(false);
-  const [formError, setFormError] = useState(false);
-  const [fields, setFields] = useState({
+  const [success, setSuccess] = useState<boolean>(false);
+  const [formError, setFormError] = useState<boolean>(false);
+  const [fields, setFields] = useState<SignUpFields>({
     name: "",
     email: "",
     admin: false,
   });
   const router = useRouter();
 
-  const formIsValid = Object.values(fields).filter((val) => val?.length === 0);
+  const formIsValid = Object.values(fields).filter((val) =>
+    typeof val === "string" ? val.length === 0 : false
+  );
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(false);
     setSuccess(false);
@@ -29,9 +32,14 @@ function SignUp() {
     }
   };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFields((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value, type, checked } = event.target;
+    setFields((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   return (
@@ -48,7 +56,7 @@ function SignUp() {
             type="text"
             name="name"
             id="name"
-            value={fields?.name}
+            value={fields.name}
             onChange={handleChange}
           />
         </label>
@@ -60,7 +68,7 @@ function SignUp() {
             type="email"
             name="email"
             id="email"
-            value={fields?.email}
+            value={fields.email}
             onChange={handleChange}
           />
         </label>
@@ -72,7 +80,7 @@ function SignUp() {
             name="admin"
             id="admin"
             onChange={handleChange}
-            checked={fields?.admin}
+            checked={fields.admin}
           />
           <span className="font-semibold">Admin</span>
         </label>
