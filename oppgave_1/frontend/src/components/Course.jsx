@@ -2,33 +2,37 @@
 
 import { useState, useEffect } from "react";
 import Lesson from "./Lesson";
-import { Course as CourseType, CourseProps, LessonType, GetUsersResponse } from "../types";
 
-const getCourse = async (slug: string): Promise<CourseType> => {
+
+const getCourse = async (slug) => {
     const course = await fetch(`http://localhost:3999/api/courses/${slug}`)
         .then((response) => response.json())
-        .then((data: CourseType) => {
+        .then((data) => {
             return data;
         });
     return course;
 };
 
-const getUsers = async (): Promise<GetUsersResponse> => {
+const getUsers = async () => {
     const users = await fetch("http://localhost:3999/api/users")
         .then((response) => response.json())
-        .then((data: GetUsersResponse) => {
+        .then((data) => {
             return data;
         });
     return users;
 };
 
-function Course({ courseSlug, lessonSlug }: CourseProps) {
-    const [content, setContent] = useState<CourseType | null>(null);
-    const [users, setUsers] = useState<string[]>([]);
+
+function Course(slug) {
+    const [content, setContent] = useState(null);
+    const [users, setUsers] = useState([]);
+
+    const courseSlug = slug.courseSlug;
+    const lessonSlug = slug.lessonSlug;
 
     useEffect(() => {
         const getContent = async () => {
-            const data = await getCourse(courseSlug);
+            const data = await getCourse(slug.courseSlug);
             setContent(data);
 
             const users = await getUsers();
@@ -37,6 +41,7 @@ function Course({ courseSlug, lessonSlug }: CourseProps) {
         getContent();
     }, [courseSlug]); // TODO: still triggers rerender on lesson change
 
+
     return (
         <div className="grid grid-cols-[250px_minmax(20%,1fr)_1fr] gap-16">
             <aside className="border-r border-slate-200 pr-6">
@@ -44,7 +49,8 @@ function Course({ courseSlug, lessonSlug }: CourseProps) {
                 <ul data-testid="lessons">
                     {content?.lessons?.map((lesson) => (
                         <li
-                            className={`text-sm" mb-4 w-full max-w-[95%] rounded-lg border border-slate-300 px-4 py-2 ${lessonSlug === lesson.slug ? "bg-emerald-300" : "bg-transparent"}`}
+                            className={`text-sm" mb-4 w-full max-w-[95%] rounded-lg border border-slate-300 px-4 py-2 ${lessonSlug === lesson.slug ? "bg-emerald-300" : "bg-transparent"
+                                }`}
                             key={lesson.id}
                         >
                             <a
@@ -85,7 +91,8 @@ function Course({ courseSlug, lessonSlug }: CourseProps) {
                 <h3 className="mb-4 text-base font-bold">Deltakere</h3>
                 <ul data-testid="course_enrollments">
                     {users?.map((user) => (
-                        <li className="mb-1" key={user}>
+                        <li className="mb-1"
+                            key={user}>
                             {user}
                         </li>
                     ))}

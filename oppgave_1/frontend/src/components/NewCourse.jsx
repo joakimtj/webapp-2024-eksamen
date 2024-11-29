@@ -1,104 +1,100 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { CourseFields, LessonType, GetCategoriesResponse } from "../types";
+import { useState, useEffect } from "react";
 
-interface CourseStep {
-    id: string;
-    name: string;
-}
+const getCategories = async () => {
+    const categories =
+        await fetch(`http://localhost:3999/api/categories`)
+            .then((response) => response.json())
+            .then((data) => {
+                return data;
+            });
+    return categories;
+};
 
-// Constants
-const courseCreateSteps: CourseStep[] = [
+import { useParams, useRouter } from "next/navigation";
+
+// Why was this even in the original data? Is this supposed to be 
+// retrieved from the server? If so, I don't see the point of it.
+// If the steps are to be changed, the client code also needs to be 
+// updated to accommodate the changes. In that case you might as well
+// hardcode the steps in the client code to begin with.
+const courseCreateSteps = [
     { id: '1', name: 'Kurs' },
     { id: '2', name: 'Leksjoner' },
-];
+]
 
 function Create() {
-    const [success, setSuccess] = useState<boolean>(false);
-    const [formError, setFormError] = useState<boolean>(false);
-    const [current, setCurrent] = useState<number>(0);
-    const [currentLesson, setCurrentLesson] = useState<number>(0);
-    const [categories, setCategories] = useState<string[]>([]);
+    const [success, setSuccess] = useState(false);
+    const [formError, setFormError] = useState(false);
+    const [current, setCurrent] = useState(0);
+    const [currentLesson, setCurrentLesson] = useState(0);
+    const [categories, setCategories] = useState([]);
 
-    const [courseFields, setCourseFields] = useState<CourseFields>({
+    const [courseFields, setCourseFields] = useState({
         id: `${Math.floor(Math.random() * 1000 + 1)}`,
         title: "",
         slug: "",
         description: "",
         category: "",
     });
-    const [lessons, setLessons] = useState<LessonType[]>([]);
+    const [lessons, setLessons] = useState([]);
 
     const router = useRouter();
 
     const step = courseCreateSteps[current]?.name;
 
-    const createCourse = async (data: CourseFields & { lessons: LessonType[] }): Promise<void> => {
-        try {
-            const response = await fetch("http://localhost:3999/api/courses", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
+    // TODO: service file
+    const createCourse = async (data) => {
+        console.log("Pushing course to courses", data);
+        // POST request to /api/courses
+
+        fetch("http://localhost:3999/api/courses", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Success:", data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
             });
+    };
 
-            if (!response.ok) {
-                throw new Error('Failed to create course');
+    const isValid = (items) => {
+        const invalidFields = [];
+        // eslint-disable-next-line no-shadow
+        const validate = (items) => {
+            if (typeof items !== "object") {
+                return;
             }
-
-            const responseData = await response.json();
-            console.log("Success:", responseData);
-        } catch (error) {
-            console.error("Error:", error);
-            throw error;
-        }
+            if (Array.isArray(items)) {
+                items.forEach((item) => validate(item));
+            } else {
+                items &&
+                    Object.entries(items)?.forEach(([key, value]) => {
+                        if (
+                            !value ||
+                            value === null ||
+                            value === undefined ||
+                            (Array.isArray(value) && value?.length === 0)
+                        ) {
+                            invalidFields.push(key);
+                        } else {
+                            validate(value);
+                        }
+                    });
+            }
+        };
+        validate(items);
+        return invalidFields.length === 0;
     };
 
-    const isValid = (items: unknown): boolean => {
-        // Handle empty array case for lessons
-        if (Array.isArray(items) && items.length === 0) {
-            return false;
-        }
-
-        // Helper function to validate a single lesson
-        const isLessonValid = (lesson: LessonType): boolean => {
-            return !!(
-                lesson.title &&
-                lesson.slug &&
-                lesson.preamble &&
-                lesson.text &&
-                lesson.text.length > 0 &&
-                lesson.text.every(t => t.text.trim() !== '')
-            );
-        };
-
-        // For CourseFields validation
-        const isCourseFieldsValid = (fields: CourseFields): boolean => {
-            return !!(
-                fields.title &&
-                fields.slug &&
-                fields.description &&
-                fields.category
-            );
-        };
-
-        // Handle array of lessons
-        if (Array.isArray(items)) {
-            return items.every(isLessonValid);
-        }
-
-        // Handle course fields
-        if (items && typeof items === 'object') {
-            return isCourseFieldsValid(items as CourseFields);
-        }
-
-        return false;
-    };
-
-    const handleSubmit = async (event: FormEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         setFormError(false);
         setSuccess(false);
@@ -107,25 +103,17 @@ function Create() {
             setSuccess(true);
             setCurrent(2);
 
+            // create a new lessons array that only includes the fields we want to send to the server (text)
+            // Create an array of strings filled with lesson.text
             const transformedLessons = lessons.map((lesson) => {
-                const text = lesson.text?.map((field) => ({ id: field.id, text: field.text })) ?? [];
+                const text = lesson.text.map((field) => field.text);
                 return { ...lesson, text };
             });
 
-            try {
-                console.log({ ...courseFields, lessons: transformedLessons });
-                await createCourse({ ...courseFields, lessons: transformedLessons });
-
-                // disable submit button after form submission
-                event.currentTarget.disabled = true;
-
-                setTimeout(() => {
-                    router.push("/courses");
-                }, 5000);
-            } catch (error) {
-                setFormError(true);
-                setSuccess(false);
-            }
+            await createCourse({ ...courseFields, lessons: transformedLessons });
+            setTimeout(() => {
+                router.push("/courses");
+            }, 500);
         } else {
             setFormError(true);
         }
@@ -137,7 +125,7 @@ function Create() {
                 const text = [
                     { id: `${Math.floor(Math.random() * 1000 + 1)}`, text: "" },
                 ];
-                if (!lesson.text || lesson.text.length === 0) {
+                if (lesson.text.length === 0) {
                     text.push({
                         id: `${Math.floor(Math.random() * 1000 + 1)}`,
                         text: "",
@@ -145,7 +133,7 @@ function Create() {
                 }
                 return {
                     ...lesson,
-                    text: [...(lesson.text ?? []), ...text],
+                    text: [...lesson.text, ...text],
                 };
             }
             return lesson;
@@ -153,8 +141,8 @@ function Create() {
         setLessons(updatedLessonText);
     };
 
-    const removeTextBox = (index: number) => {
-        const removed = lessons[currentLesson].text?.filter((_, i) => i !== index) ?? [];
+    const removeTextBox = (index) => {
+        const removed = lessons[currentLesson].text.filter((_, i) => i !== index);
         const updatedLessonText = lessons.map((lesson, i) => {
             if (currentLesson === i) {
                 return {
@@ -167,12 +155,12 @@ function Create() {
         setLessons(updatedLessonText);
     };
 
-    const handleCourseFieldChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleCourseFieldChange = (event) => {
         const { name, value } = event.target;
         setCourseFields((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleStep = (index: number) => {
+    const handleStep = (index) => {
         setFormError(false);
         switch (index) {
             case 0:
@@ -184,21 +172,16 @@ function Create() {
         }
     };
 
-    const handleLessonFieldChange = (
-        event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-        index: number
-    ) => {
+    const handleLessonFieldChange = (event, index) => {
         const { name, value } = event.target;
-        let text = lessons[currentLesson]?.text ?? [];
-
-        if (text.length === 0) {
+        let text;
+        if (lessons[currentLesson]?.text?.length === 0) {
             text = [{ id: `${Math.floor(Math.random() * 1000 + 1)}`, text: "" }];
         }
-
-        if (text.length > 0) {
-            text = text.map((_text, i) => {
+        if (lessons[currentLesson]?.text?.length > 0) {
+            text = lessons[currentLesson]?.text?.map((_text, i) => {
                 if (i === index) {
-                    return { id: _text.id, text: value };
+                    return { id: _text.id, [name]: value };
                 }
                 return _text;
             });
@@ -206,16 +189,14 @@ function Create() {
 
         const updatedLessons = lessons.map((lesson, i) => {
             if (i === currentLesson) {
-                return name === 'text'
-                    ? { ...lesson, text }
-                    : { ...lesson, [name]: value };
+                return { ...lesson, [name]: value, text: text?.length > 0 ? text : [] };
             }
             return lesson;
         });
         setLessons(updatedLessons);
     };
 
-    const changeCurrentLesson = (index: number) => {
+    const changeCurrentLesson = (index) => {
         setCurrentLesson(index);
     };
 
@@ -228,7 +209,6 @@ function Create() {
                 slug: "",
                 preamble: "",
                 text: [],
-                comments: [],
                 order: `${lessons.length}`,
             },
         ]);
@@ -236,17 +216,7 @@ function Create() {
     };
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch("http://localhost:3999/api/categories");
-                const data: GetCategoriesResponse = await response.json();
-                setCategories(data);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
-
-        fetchCategories();
+        getCategories().then((data) => setCategories(data));
     }, []);
 
     return (
@@ -281,13 +251,13 @@ function Create() {
                     </button>
                 </ul>
             </nav>
-
             <h2 className="text-xl font-bold" data-testid="title">
                 Lag nytt kurs
             </h2>
             <form className="mt-8 max-w-4xl" data-testid="form" noValidate>
                 {current === 0 ? (
                     <div data-testid="course_step" className="max-w-lg">
+                        {/* {JSON.stringify(courseFields)} */}
                         <label className="mb-4 flex flex-col" htmlFor="title">
                             <span className="mb-1 font-semibold">Tittel*</span>
                             <input
@@ -334,7 +304,9 @@ function Create() {
                                 value={courseFields?.category}
                                 onChange={handleCourseFieldChange}
                             >
-                                <option disabled value="">Velg kategori</option>
+                                <option disabled value="">
+                                    Velg kategori
+                                </option>
                                 {categories.map((category) => (
                                     <option key={category} value={category}>
                                         {category}
@@ -344,30 +316,34 @@ function Create() {
                         </label>
                     </div>
                 ) : null}
-
                 {current === 1 ? (
-                    <div data-testid="lesson_step" className="grid w-full grid-cols-[350px_minmax(50%,_1fr)] gap-12">
+                    <div
+                        data-testid="lesson_step"
+                        className="grid w-full grid-cols-[350px_minmax(50%,_1fr)] gap-12"
+                    >
                         <aside className="border-r border-slate-200 pr-6">
                             <h3 className="mb-4 text-base font-bold">Leksjoner</h3>
                             <ul data-testid="lessons">
-                                {lessons?.map((lesson, index) => (
-                                    <li
-                                        className={`mb-4 w-full rounded px-4 py-2 text-base ${index === currentLesson
-                                            ? "border border-transparent bg-emerald-200"
-                                            : "border border-slate-300 bg-transparent"
-                                            }`}
-                                        key={lesson?.id ?? index}
-                                    >
-                                        <button
-                                            type="button"
-                                            data-testid="select_lesson_btn"
-                                            className="w-full max-w-full truncate pr-2 text-left"
-                                            onClick={() => changeCurrentLesson(index)}
+                                {lessons?.length > 0 &&
+                                    lessons?.map((lesson, index) => (
+                                        <li
+                                            className={`borde mb-4 w-full rounded px-4 py-2 text-base ${index === currentLesson
+                                                ? "border border-transparent bg-emerald-200"
+                                                : "border border-slate-300 bg-transparent"
+                                                }`}
+                                            key={lesson?.id ?? index}
                                         >
-                                            {lesson?.title || `Leksjon ${index + 1}`}
-                                        </button>
-                                    </li>
-                                ))}
+                                            <button
+                                                type="button"
+                                                data-testid="select_lesson_btn"
+                                                className="w-full max-w-full truncate pr-2 text-left"
+                                                onClick={() => changeCurrentLesson(index)}
+                                            >
+                                                {" "}
+                                                {lesson?.title || `Leksjon ${index + 1}`}
+                                            </button>
+                                        </li>
+                                    ))}
                             </ul>
                             <div className="flex">
                                 <button
@@ -380,8 +356,7 @@ function Create() {
                                 </button>
                             </div>
                         </aside>
-
-                        {lessons?.length > 0 && (
+                        {lessons?.length > 0 ? (
                             <div className="w-full">
                                 <label className="mb-4 flex flex-col" htmlFor="title">
                                     <span className="mb-1 font-semibold">Tittel*</span>
@@ -392,7 +367,7 @@ function Create() {
                                         name="title"
                                         id="title"
                                         value={lessons[currentLesson]?.title}
-                                        onChange={(e) => handleLessonFieldChange(e, 0)}
+                                        onChange={handleLessonFieldChange}
                                     />
                                 </label>
                                 <label className="mb-4 flex flex-col" htmlFor="slug">
@@ -404,7 +379,7 @@ function Create() {
                                         name="slug"
                                         id="slug"
                                         value={lessons[currentLesson]?.slug}
-                                        onChange={(e) => handleLessonFieldChange(e, 0)}
+                                        onChange={handleLessonFieldChange}
                                     />
                                 </label>
                                 <label className="mb-4 flex flex-col" htmlFor="preamble">
@@ -416,27 +391,32 @@ function Create() {
                                         name="preamble"
                                         id="preamble"
                                         value={lessons[currentLesson]?.preamble}
-                                        onChange={(e) => handleLessonFieldChange(e, 0)}
+                                        onChange={handleLessonFieldChange}
                                     />
                                 </label>
-
-                                {(lessons[currentLesson]?.text ?? []).length > 1 ? (
+                                {lessons[currentLesson]?.text?.length > 1 ? (
                                     lessons[currentLesson]?.text?.map((field, index) => (
                                         <div key={field?.id}>
-                                            <label className="mt-4 flex flex-col" htmlFor={`text-${field?.id}`}>
+                                            <label
+                                                className="mt-4 flex flex-col"
+                                                htmlFor={`text-${field?.id}`}
+                                            >
                                                 <span className="text-sm font-semibold">Tekst*</span>
                                                 <textarea
                                                     data-testid="form_lesson_text"
+                                                    type="text"
                                                     name="text"
                                                     id={`text-${field?.id}`}
                                                     value={field?.text}
-                                                    onChange={(e) => handleLessonFieldChange(e, index)}
+                                                    onChange={(event) =>
+                                                        handleLessonFieldChange(event, index)
+                                                    }
                                                     className="w-full rounded bg-slate-100"
-                                                    cols={30}
+                                                    cols="30"
                                                 />
                                             </label>
                                             <button
-                                                className="text-sm font-semibold text-red-400"
+                                                className="text-sm font-semibold text-red-400 "
                                                 type="button"
                                                 onClick={() => removeTextBox(index)}
                                             >
@@ -449,16 +429,16 @@ function Create() {
                                         <span className="mb-1 text-sm font-semibold">Tekst*</span>
                                         <textarea
                                             data-testid="form_lesson_text"
+                                            type="text"
                                             name="text"
                                             id="text"
                                             value={lessons[currentLesson]?.text?.[0]?.text}
-                                            onChange={(e) => handleLessonFieldChange(e, 0)}
+                                            onChange={(event) => handleLessonFieldChange(event, 0)}
                                             className="w-full rounded bg-slate-100"
-                                            cols={30}
+                                            cols="30"
                                         />
                                     </label>
                                 )}
-
                                 <button
                                     className="mt-6 w-full rounded bg-gray-300 px-4 py-3 font-semibold"
                                     type="button"
@@ -468,47 +448,73 @@ function Create() {
                                     + Legg til tekstboks
                                 </button>
                             </div>
-                        )}
+                        ) : null}
                     </div>
                 ) : null}
-
-                {current === 2 ? (
-                    <section data-testid="review">
-                        <h3 data-testid="review_course" className="mt-4 text-lg font-bold">Kurs</h3>
-                        <p data-testid="review_course_title">Tittel: {courseFields?.title}</p>
-                        <p data-testid="review_course_slug">Slug: {courseFields?.slug}</p>
-                        <p data-testid="review_course_description">Beskrivelse: {courseFields?.description}</p>
-                        <p data-testid="review_course_category">Kategori: {courseFields?.category}</p>
-
-                        <h3 data-testid="review_course_lessons" className="mt-4 text-lg font-bold">
-                            Leksjoner ({lessons?.length})
-                        </h3>
-                        <ul data-testid="review_lessons" className="list-decimal pl-4">
-                            {lessons?.map((lesson, index) => (
-                                <li className="mt-2 mb-8 list-item" key={`${lesson?.slug}-${index}`}>
-                                    <p data-testid="review_lesson_title">Tittel: {lesson?.title}</p>
-                                    <p data-testid="review_lesson_slug">Slug: {lesson?.slug}</p>
-                                    <p data-testid="review_lesson_preamble">Ingress: {lesson?.preamble}</p>
-                                    <p>Tekster:</p>
-                                    <ul data-testid="review_lesson_texts" className="list-inside">
-                                        {lesson?.text?.map((text) => (
-                                            <li data-testid="review_lesson_text" className="mb-1 pl-4" key={text?.id}>
-                                                {text?.text}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
+                {formError ? (
+                    <p data-testid="form_error">Fyll ut alle felter med *</p>
                 ) : null}
-
-                {formError && <p data-testid="form_error">Fyll ut alle felter med *</p>}
-                {success && (
+                {success ? (
                     <p className="text-emerald-600" data-testid="form_success">
                         Skjema sendt
                     </p>
-                )}
+                ) : null}
+                {current === 2 ? (
+                    <section data-testid="review">
+                        <h3 data-testid="review_course" className="mt-4 text-lg font-bold">
+                            Kurs
+                        </h3>
+                        <p data-testid="review_course_title">
+                            Tittel: {courseFields?.title}
+                        </p>
+                        <p data-testid="review_course_slug">Slug: {courseFields?.slug}</p>
+                        <p data-testid="review_course_description">
+                            Beskrivelse: {courseFields?.description}
+                        </p>
+                        <p data-testid="review_course_category">
+                            Kategori: {courseFields?.category}
+                        </p>
+                        <h3
+                            data-testid="review_course_lessons"
+                            className="mt-4 text-lg font-bold"
+                        >
+                            Leksjoner ({lessons?.length})
+                        </h3>
+                        <ul data-testid="review_lessons" className="list-decimal pl-4">
+                            {lessons?.length > 0 &&
+                                lessons.map((lesson, index) => (
+                                    <li
+                                        className="mt-2 mb-8 list-item"
+                                        key={`${lesson?.slug}-${index}`}
+                                    >
+                                        <p data-testid="review_lesson_title">
+                                            Tittel: {lesson?.title}
+                                        </p>
+                                        <p data-testid="review_lesson_slug">Slug: {lesson?.slug}</p>
+                                        <p data-testid="review_lesson_preamble">
+                                            Ingress: {lesson?.preamble}
+                                        </p>
+                                        <p>Tekster: </p>
+                                        <ul
+                                            data-testid="review_lesson_texts"
+                                            className="list-inside"
+                                        >
+                                            {lesson?.text?.length > 0 &&
+                                                lesson.text.map((text) => (
+                                                    <li
+                                                        data-testid="review_lesson_text"
+                                                        className="mb-1 pl-4"
+                                                        key={text?.id}
+                                                    >
+                                                        {text?.text}
+                                                    </li>
+                                                ))}
+                                        </ul>
+                                    </li>
+                                ))}
+                        </ul>
+                    </section>
+                ) : null}
             </form>
         </>
     );
