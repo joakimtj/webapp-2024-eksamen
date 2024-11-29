@@ -114,6 +114,7 @@ app.post('/api/courses', async (c) => {
 				content: string;
 				block_order: number;
 			}
+
 			const content_blocks: content_block[] = lesson.text.map((text, index) => {
 				return { content: text, block_order: index };
 			});
@@ -126,9 +127,8 @@ app.post('/api/courses', async (c) => {
 				lesson_order: lessons.indexOf(lesson),
 				content_blocks: content_blocks
 			};
-			console.log(request);
 			const lessonId = db.createLesson(request);
-			console.log(lessonId);
+			console.log("New lesson id: ", lessonId);
 		});
 		return c.json({ message: 'Course created successfully' }, 201);
 	} catch (err) {

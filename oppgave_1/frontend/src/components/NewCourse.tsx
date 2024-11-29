@@ -37,12 +37,19 @@ function Create() {
 
     const createCourse = async (data: CourseFields & { lessons: LessonType[] }): Promise<void> => {
         try {
+            // strip 'id' from content_blocks
+            const transformedLessons = data.lessons.map((lesson) => {
+                const text = lesson.text?.map((field) => (field.text));
+                return { ...lesson, text };
+            });
+            const tmp = { ...data, lessons: transformedLessons }
+            console.log("Sending data:", tmp);
             const response = await fetch("http://localhost:3999/api/courses", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(tmp),
             });
 
             if (!response.ok) {
@@ -106,6 +113,8 @@ function Create() {
         if (lessons.length > 0 && isValid(lessons) && isValid(courseFields)) {
             setSuccess(true);
             setCurrent(2);
+            // disable submit button after form submission
+            event.currentTarget.disabled = true;
 
             const transformedLessons = lessons.map((lesson) => {
                 const text = lesson.text?.map((field) => ({ id: field.id, text: field.text })) ?? [];
@@ -113,12 +122,11 @@ function Create() {
             });
 
             try {
-                console.log({ ...courseFields, lessons: transformedLessons });
+
                 await createCourse({ ...courseFields, lessons: transformedLessons });
 
-                // disable submit button after form submission
-                event.currentTarget.disabled = true;
 
+                console.log("Redirecting...");
                 setTimeout(() => {
                     router.push("/courses");
                 }, 5000);
