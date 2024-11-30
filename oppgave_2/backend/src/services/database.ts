@@ -250,8 +250,21 @@ export class AppDB {
     }
 
     deleteRegistration(id: string): boolean {
-        const result = db.prepare('DELETE FROM registrations WHERE id = ?').run(id);
-        return result.changes > 0;
+        try {
+            db.exec('BEGIN TRANSACTION');
+
+            // Delete all associated attendees first
+            db.prepare('DELETE FROM attendees WHERE registration_id = ?').run(id);
+
+            // Then delete the registration
+            const result = db.prepare('DELETE FROM registrations WHERE id = ?').run(id);
+
+            db.exec('COMMIT');
+            return result.changes > 0;
+        } catch (error) {
+            db.exec('ROLLBACK');
+            throw error;
+        }
     }
 
     updateRegistration(id: string, data: Partial<Registration>): Registration | null {

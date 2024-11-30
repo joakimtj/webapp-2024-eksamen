@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Loader2, Trash2 } from 'lucide-react';
 import { endpoints } from '@/config/urls';
 import { Attendee, Registration } from '@/types';
 
@@ -18,6 +18,7 @@ const RegistrationList: React.FC<RegistrationListProps> = ({ eventId }) => {
     const [expandedRegistrationId, setExpandedRegistrationId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [updatingStatuses, setUpdatingStatuses] = useState<string[]>([]);
+    const [deletingRegistrations, setDeletingRegistrations] = useState<string[]>([]);
     const [statusError, setStatusError] = useState<UpdateStatusError | null>(null);
 
     useEffect(() => {
@@ -109,6 +110,42 @@ const RegistrationList: React.FC<RegistrationListProps> = ({ eventId }) => {
         }
     };
 
+    const handleDeleteRegistration = async (registrationId: string) => {
+        if (!window.confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+            return;
+        }
+
+        setDeletingRegistrations(prev => [...prev, registrationId]);
+
+        try {
+            const response = await fetch(`${endpoints.getRegistrations}/${registrationId}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error?.message || 'Failed to delete registration');
+            }
+
+            if (result.success) {
+                setRegistrations(prev => prev.filter(reg => reg.id !== registrationId));
+                setAttendeesByRegistration(prev => {
+                    const newState = { ...prev };
+                    delete newState[registrationId];
+                    return newState;
+                });
+            } else {
+                throw new Error(result.error.message);
+            }
+        } catch (error) {
+            console.error('Failed to delete registration:', error);
+            alert('Failed to delete registration: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        } finally {
+            setDeletingRegistrations(prev => prev.filter(id => id !== registrationId));
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center py-8">
@@ -170,6 +207,21 @@ const RegistrationList: React.FC<RegistrationListProps> = ({ eventId }) => {
                                 <option value="confirmed">Confirmed</option>
                                 <option value="declined">Declined</option>
                             </select>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteRegistration(registration.id);
+                                }}
+                                disabled={deletingRegistrations.includes(registration.id)}
+                                className={`p-2 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50
+                  ${deletingRegistrations.includes(registration.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {deletingRegistrations.includes(registration.id) ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Trash2 className="w-4 h-4" />
+                                )}
+                            </button>
                         </div>
                     </div>
 
