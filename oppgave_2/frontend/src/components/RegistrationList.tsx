@@ -198,14 +198,14 @@ const RegistrationList: React.FC<RegistrationListProps> = ({ eventId }) => {
                                 onClick={e => e.stopPropagation()}
                                 data-registration-id={registration.id}
                                 disabled={updatingStatuses.includes(registration.id)}
-                                className={`px-3 py-1 rounded border ${registration.status === 'confirmed' ? 'text-green-600 border-green-200 bg-green-50' :
-                                    registration.status === 'declined' ? 'text-red-600 border-red-200 bg-red-50' :
+                                className={`px-3 py-1 rounded border ${registration.status === 'approved' ? 'text-green-600 border-green-200 bg-green-50' :
+                                    registration.status === 'rejected' ? 'text-red-600 border-red-200 bg-red-50' :
                                         'text-yellow-600 border-yellow-200 bg-yellow-50'
                                     } ${updatingStatuses.includes(registration.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="declined">Declined</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
                             </select>
                             <button
                                 onClick={(e) => {
