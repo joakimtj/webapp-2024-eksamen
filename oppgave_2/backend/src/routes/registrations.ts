@@ -71,6 +71,54 @@ registrations.put('/:id', async (c) => {
     }
 });
 
+registrations.patch('/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+        const body = await c.req.json();
+
+        // Validate the registration exists
+        const existingRegistration = db.getRegistrationById(id);
+        if (!existingRegistration) {
+            return c.json<Result<Registration>>({
+                success: false,
+                error: {
+                    code: 'REGISTRATION_NOT_FOUND',
+                    message: 'Registration not found'
+                }
+            }, { status: 404 });
+        }
+
+        // Update registration
+        const registration = db.updateRegistration(id, {
+            status: body.status,
+            total_price: body.total_price
+        });
+
+        if (!registration) {
+            return c.json<Result<Registration>>({
+                success: false,
+                error: {
+                    code: 'UPDATE_FAILED',
+                    message: 'Failed to update registration'
+                }
+            }, { status: 500 });
+        }
+
+        return c.json<Result<Registration>>({
+            success: true,
+            data: registration
+        });
+    } catch (err) {
+        return c.json<Result<Registration>>({
+            success: false,
+            error: {
+                code: 'INTERNAL_SERVER_ERROR',
+                message: err instanceof Error ? err.message : 'Unknown error'
+            }
+        }, { status: 500 });
+    }
+});
+
 registrations.post('/', async (c) => {
     try {
         const body = await c.req.json();

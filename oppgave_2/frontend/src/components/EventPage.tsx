@@ -3,6 +3,7 @@ import { Calendar, MapPin, Users, Clock, Banknote, Pencil, X, Save } from 'lucid
 import { Event } from '@/types/Event';
 import RegistrationForm from '@/components/RegistrationForm';
 import { endpoints } from '@/config/urls';
+import RegistrationList from './RegistrationList';
 
 interface EventPageProps extends Event {
     isAdmin: boolean;
@@ -118,7 +119,7 @@ export const EventPage = ({
                                 <input
                                     type="number"
                                     name="price"
-                                    value={editForm.price}
+                                    value={editForm.price ?? 0}
                                     onChange={handleInputChange}
                                     className="p-2 border rounded"
                                     placeholder="Price (NOK)"
@@ -187,7 +188,7 @@ export const EventPage = ({
                     {isEditing ? (
                         <textarea
                             name="description"
-                            value={editForm.description}
+                            value={editForm.description ?? ''}
                             onChange={handleInputChange}
                             className="w-full p-2 border rounded h-32"
                             placeholder="Event description"
@@ -217,6 +218,9 @@ export const EventPage = ({
                         />
                     )}
                 </div>
+            </div>
+            <div>
+                {isAdmin && <RegistrationList eventId={id} />}
             </div>
         </div>
     );

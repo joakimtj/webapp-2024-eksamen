@@ -83,6 +83,11 @@ export interface CreateRegistrationData {
     total_price: number;
 }
 
+export interface UpdateRegistrationData {
+    status?: string;
+    total_price?: number;
+}
+
 // Attendee Types
 export interface Attendee {
     id: string;

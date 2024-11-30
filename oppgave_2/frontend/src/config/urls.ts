@@ -7,6 +7,8 @@ const endpoints = {
     getEvents: `${baseUrl}/api/events`,
     getEvent: `${baseUrl}/api/events`,
     getTemplates: `${baseUrl}/api/templates`,
+    getRegistrations: `${baseUrl}/api/registrations`,
+    getAttendees: `${baseUrl}/api/attendees`,
     createEvent: `${baseUrl}/api/events`,
     createRegistration: `${baseUrl}/api/registrations`,
     createAttendee: `${baseUrl}/api/attendees`,
