@@ -30,3 +30,15 @@ export interface Attendee {
     phone: string;
     created_at: string;
 }
+
+export interface TemplateRules {
+    noSameDayEvents?: boolean;        // Rule 1
+    allowedWeekDays?: number[];       // Rule 2 (0-6, where 0 is Sunday)
+    isPrivate?: boolean;              // Rule 3
+    hasFixedCapacity?: boolean;       // Rule 4
+    fixedCapacity?: number;           // Rule 4
+    hasFixedPrice?: boolean;          // Rule 5
+    fixedPrice?: number;              // Rule 5
+    isFree?: boolean;                 // Rule 6
+    hasWaitingList?: boolean;         // Rule 7
+}

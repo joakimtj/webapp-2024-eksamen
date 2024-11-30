@@ -73,17 +73,7 @@ Success Response (200):
     "status": "string",
     "isPrivate": boolean,
     "templateId": "string|null",
-    "rules": {
-      "allowWaitlist": boolean,
-      "restrictWeekday": string[],
-      "noOtherEvents": boolean
-    }
-  }],
-  "pagination": {
-    "total": number,
-    "page": number,
-    "limit": number
-  }
+  }]
 }
 ```
 
