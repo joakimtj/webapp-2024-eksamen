@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Event } from '@/types/Event';
 import { endpoints } from '@/config/urls';
+import { useTemplates } from '@/hooks/useTemplates';
 
 interface EventFormData {
     title: string;
@@ -10,16 +11,18 @@ interface EventFormData {
     location: string;
     capacity: number;
     price: number;
+    rules: string;
 }
 
 const initialFormData: EventFormData = {
     title: '',
     description: '',
-    event_type: 'Workshop',
+    event_type: '',
     date: '',
     location: '',
     capacity: 0,
-    price: 0
+    price: 0,
+    rules: '',
 };
 
 interface EventFormProps {
@@ -30,6 +33,7 @@ export const EventForm = ({ onClose }: EventFormProps) => {
     const [formData, setFormData] = useState<EventFormData>(initialFormData);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { templates, isLoading: templatesLoading } = useTemplates();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -39,6 +43,25 @@ export const EventForm = ({ onClose }: EventFormProps) => {
         }));
     };
 
+    const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const templateId = e.target.value;
+        if (templateId === '') {
+            setFormData(initialFormData);
+            return;
+        }
+
+        const selectedTemplate = templates.find(t => t.id === templateId);
+        if (selectedTemplate) {
+            setFormData(prev => ({
+                ...prev,
+                title: selectedTemplate.name,
+                event_type: selectedTemplate.event_type,
+                capacity: selectedTemplate.default_capacity,
+                price: selectedTemplate.default_price,
+                rules: selectedTemplate.rules
+            }));
+        }
+    };
     const createEvent = async (saveAsTemplate: boolean = false) => {
         setIsSubmitting(true);
         setError(null);
@@ -79,7 +102,7 @@ export const EventForm = ({ onClose }: EventFormProps) => {
                         event_type: formData.event_type,
                         default_capacity: formData.capacity,
                         default_price: formData.price,
-                        rules: '{}' // Placeholder for future use
+                        rules: formData.rules
                     }),
                 });
 
@@ -108,6 +131,24 @@ export const EventForm = ({ onClose }: EventFormProps) => {
             )}
 
             <form className="space-y-6">
+                {/* Add template selector at the top */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Template (Optional)
+                    </label>
+                    <select
+                        className="w-full p-2 border rounded"
+                        onChange={handleTemplateChange}
+                        disabled={templatesLoading}
+                    >
+                        <option value="">No Template</option>
+                        {templates.map(template => (
+                            <option key={template.id} value={template.id}>
+                                {template.name} ({template.event_type})
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Title
@@ -206,6 +247,20 @@ export const EventForm = ({ onClose }: EventFormProps) => {
                         step="0.01"
                         className="w-full p-2 border rounded"
                         required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Optional Template Rules
+                    </label>
+                    <input
+                        type="string"
+                        name="rules"
+                        value={formData.rules}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border rounded"
+                        placeholder="If saving as template, provide additional rules here"
                     />
                 </div>
 

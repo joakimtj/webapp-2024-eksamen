@@ -9,6 +9,14 @@ export interface Template {
     updated_at: string;
 }
 
+export interface CreateTemplateData {
+    name: string;
+    event_type: string;
+    default_capacity: number;
+    default_price: number;
+    rules: string;
+}
+
 /*** Events ***/
 
 export interface Event {

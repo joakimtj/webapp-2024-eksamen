@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { nanoid } from 'nanoid';
-import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters, CreateRegistrationData, CreateAttendeeData, FilterOptions, CreateEventData } from '../types/models';
+import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters, CreateRegistrationData, CreateAttendeeData, FilterOptions, CreateEventData, CreateTemplateData } from '../types/models';
 
 const db = new Database('app.db');
 
@@ -189,6 +189,37 @@ export class AppDB {
         const result = db.prepare('DELETE FROM templates WHERE id = ?').run(id);
         return result.changes > 0;
     }
+
+    createTemplate(data: CreateTemplateData): Template {
+        const now = new Date().toISOString();
+        const id = `tpl_${nanoid()}`; // Using prefix for clarity
+
+        const result = db.prepare(`
+          INSERT INTO templates (
+            id,
+            name,
+            event_type,
+            default_capacity,
+            default_price,
+            rules,
+            created_at,
+            updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          RETURNING *
+        `).get(
+            id,
+            data.name,
+            data.event_type,
+            data.default_capacity,
+            data.default_price,
+            data.rules,
+            now,
+            now
+        ) as Template;
+
+        return result;
+    }
+
 
     updateTemplate(id: string, data: Partial<Template>): Template | null {
         const updates = Object.entries(data)
