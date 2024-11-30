@@ -18,7 +18,12 @@
     - [x] RegistrationForm sends registration and attendees to the backend db
     - [x] Event filter populates with info from the available events in the db 
 - [ ] 2.5 (frontend: lag grensesnittet for admin) -  Aktuelle regler må ivaretas
-- [ ] 2.6 (backend: lag endepunkter for kravene som omhandler admin) - Aktuelle regler må ivaretas
+    - [x] Form for event and template creation
+    - [x] Create event based on template
+    - [ ] Template override on set rules 
+- [ ] 2.6 (backend: lag endepunkter for kravene som omhandler admin) - Aktuelle regler må ivaretas 
+    - [ ] Well, there are a shitload of these endpoints so it should be mostly complete possibly
 - [ ] 2.7 (koble sammen frontend og backend for admin) - Aktuelle regler må ivaretas
+    - [ ] Like the frontend and backend are connected but all the features aren't built out soooo
 - [ ] 2.8 (lagdel KUN den delen som erkoblet til oppgave 2.6) - Aktuelle regler må ivaretas
 - [ ] 2.9 (implementer nødvendig logikk for å sikre at ETT av kravene under statistikk ivaretas)

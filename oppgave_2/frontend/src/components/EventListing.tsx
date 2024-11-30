@@ -20,15 +20,13 @@ const EventListing = () => {
         event_type: selectedType !== 'all' ? selectedType : undefined
     };
 
-    const { events, isLoading: eventsLoading, error } = useEvents(filters);
+    const { events, isLoading: eventsLoading, error, refresh } = useEvents(filters);
 
     if (eventsLoading || optionsLoading) return <Loading />;
     if (error) return <Error message={error} />;
 
     return (
         <div className="relative">
-
-            <EventForm />
             {/* Role Selector Overlay */}
             {showRoleSelector && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -99,10 +97,11 @@ const EventListing = () => {
 
                 <div className="grid grid-cols-1 gap-6">
                     {events.map(event => (
-                        <EventCard key={event.id} {...event} event_type={event.event_type} isAdmin={isAdmin} />
+                        <EventCard key={event.id} {...event} event_type={event.event_type} isAdmin={isAdmin} onDelete={refresh} />
                     ))}
                 </div>
             </div>
+            <EventForm />
         </div>
     );
 };

@@ -1,5 +1,8 @@
 const baseUrl: String = "http://localhost:3999"
 
+// These endpoints are defined in a very silly way but I'm sticking to them lol
+// Just know, that I am aware that this shit sucks lol
+
 const endpoints = {
     getEvents: `${baseUrl}/api/events`,
     getEvent: `${baseUrl}/api/events`,
