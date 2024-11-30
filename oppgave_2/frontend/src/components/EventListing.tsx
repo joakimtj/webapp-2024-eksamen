@@ -13,6 +13,19 @@ const EventListing = () => {
     const [showRoleSelector, setShowRoleSelector] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
 
+    // When setting admin status
+    const handleAdminClick = () => {
+        setIsAdmin(true);
+        localStorage.setItem('isAdmin', 'true');
+        setShowRoleSelector(false);
+    };
+
+    const handleUserClick = () => {
+        setIsAdmin(false);
+        localStorage.setItem('isAdmin', 'false');
+        setShowRoleSelector(false);
+    };
+
     const { options, isLoading: optionsLoading } = useFilterOptions();
     const filters = {
         month: selectedMonth,
@@ -34,7 +47,7 @@ const EventListing = () => {
                     <div className="relative bg-white p-6 rounded-lg shadow-xl flex gap-4">
                         <button
                             onClick={() => {
-                                setIsAdmin(true);
+                                handleAdminClick();
                                 setShowRoleSelector(false);
                             }}
                             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -43,7 +56,7 @@ const EventListing = () => {
                         </button>
                         <button
                             onClick={() => {
-                                setIsAdmin(false);
+                                handleUserClick();
                                 setShowRoleSelector(false);
                             }}
                             className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -101,7 +114,7 @@ const EventListing = () => {
                     ))}
                 </div>
             </div>
-            <EventForm />
+            {isAdmin && <EventForm onClose={refresh} />}
         </div>
     );
 };

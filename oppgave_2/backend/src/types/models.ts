@@ -1,24 +1,4 @@
-export interface Template {
-    id: string;
-    name: string;
-    event_type: string;
-    default_capacity: number;
-    default_price: number;
-    rules: string;
-    created_at: string;
-    updated_at: string;
-}
-
-export interface CreateTemplateData {
-    name: string;
-    event_type: string;
-    default_capacity: number;
-    default_price: number;
-    rules: string;
-}
-
-/*** Events ***/
-
+// Event Types
 export interface Event {
     id: string;
     slug: string;
@@ -67,8 +47,27 @@ export interface FilterOptions {
     months: number[];
 }
 
-/*** Registration ***/
+// Template Types
+export interface Template {
+    id: string;
+    name: string;
+    event_type: string;
+    default_capacity: number;
+    default_price: number;
+    rules: string;
+    created_at: string;
+    updated_at: string;
+}
 
+export interface CreateTemplateData {
+    name: string;
+    event_type: string;
+    default_capacity: number;
+    default_price: number;
+    rules: string;
+}
+
+// Registration Types
 export interface Registration {
     id: string;
     event_id: string;
@@ -84,8 +83,7 @@ export interface CreateRegistrationData {
     total_price: number;
 }
 
-/*** Attendee ***/
-
+// Attendee Types
 export interface Attendee {
     id: string;
     registration_id: string;
