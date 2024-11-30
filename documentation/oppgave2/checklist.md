@@ -21,8 +21,13 @@
     - [x] Form for event and template creation
     - [x] Create event based on template
     - [ ] Template override on set rules 
+    - [x] Set status of registrations tied to event. Between pending, decline, confirmed
+    - [x] Delete button for registrations
 - [ ] 2.6 (backend: lag endepunkter for kravene som omhandler admin) - Aktuelle regler må ivaretas 
-    - [ ] Well, there are a shitload of these endpoints so it should be mostly complete possibly
+    * Well, there are a shitload of these endpoints so it should be mostly complete possibly
+    - [x] Delete registrations on the backend
+    - [x] On registration delete, delete all associated attendees (rollback if either side of transaction fails)
+    - [ ] 
 - [ ] 2.7 (koble sammen frontend og backend for admin) - Aktuelle regler må ivaretas
     - [ ] Like the frontend and backend are connected but all the features aren't built out soooo
 - [ ] 2.8 (lagdel KUN den delen som erkoblet til oppgave 2.6) - Aktuelle regler må ivaretas
