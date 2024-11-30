@@ -2,7 +2,9 @@ import { Calendar, MapPin, Users } from 'lucide-react';
 import { Event } from '@/types/Event';
 import Link from 'next/link';
 
-interface EventCardProps extends Event { } // Alternatively type EventCardProps = Event;
+interface EventCardProps extends Event {
+    isAdmin: boolean;
+} // Alternatively type EventCardProps = Event;
 
 export const EventCard = (event: EventCardProps) => {
     // const [showRegistration, setShowRegistration] = useState(false);

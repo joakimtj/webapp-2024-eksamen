@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { nanoid } from 'nanoid';
-import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters, CreateRegistrationData, CreateAttendeeData, FilterOptions } from '../types/models';
+import type { Event, Template, Registration, Attendee, UpdateEventData, EventFilters, CreateRegistrationData, CreateAttendeeData, FilterOptions, CreateEventData } from '../types/models';
 
 const db = new Database('app.db');
 
@@ -94,6 +94,42 @@ export class AppDB {
 
     getEventBySlug(slug: string): Event | null {
         return db.prepare('SELECT * FROM events WHERE slug = ?').get(slug) as Event | null;
+    }
+
+    createEvent(data: CreateEventData): Event {
+        const now = new Date().toISOString();
+        const id = `evt_${nanoid()}`;
+
+        const result = db.prepare(`
+          INSERT INTO events (
+            id,
+            slug,
+            title,
+            description,
+            event_type,
+            date,
+            location,
+            capacity,
+            price,
+            created_at,
+            updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          RETURNING *
+        `).get(
+            id,
+            data.slug,
+            data.title,
+            data.description,
+            data.event_type,
+            data.date,
+            data.location,
+            data.capacity,
+            data.price,
+            now,
+            now
+        ) as Event;
+
+        return result;
     }
 
     deleteEvent(id: string): boolean {

@@ -146,6 +146,58 @@ events.patch('/:id', async (c): Promise<Response> => {
     }
 });
 
+events.post('/', async (c) => {
+    try {
+        const body = await c.req.json();
+
+        // Validate required fields
+        if (!body.title || !body.event_type || !body.date || !body.location || !body.capacity) {
+            return c.json<Result<Event>>({
+                success: false,
+                error: {
+                    code: 'INVALID_INPUT',
+                    message: 'Missing required fields'
+                }
+            }, { status: 400 });
+        }
+
+        // Generate slug if not provided
+        if (!body.slug) {
+            body.slug = body.title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
+
+        // Check if slug already exists
+        const existingEvent = db.getEventBySlug(body.slug);
+        if (existingEvent) {
+            return c.json<Result<Event>>({
+                success: false,
+                error: {
+                    code: 'DUPLICATE_SLUG',
+                    message: 'An event with this slug already exists'
+                }
+            }, { status: 400 });
+        }
+
+        const event = db.createEvent(body);
+
+        return c.json<Result<Event>>({
+            success: true,
+            data: event
+        });
+    } catch (err) {
+        return c.json<Result<Event>>({
+            success: false,
+            error: {
+                code: 'INTERNAL_SERVER_ERROR',
+                message: err instanceof Error ? err.message : 'Unknown error'
+            }
+        }, { status: 500 });
+    }
+});
+
 events.delete('/:id', async (c): Promise<Response> => {
     try {
         const id = c.req.param('id');
