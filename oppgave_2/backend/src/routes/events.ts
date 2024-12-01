@@ -27,6 +27,36 @@ events.get('/filters', (c) => {
     }
 });
 
+
+events.get('/capacity/:eventId', async (c) => {
+    try {
+        const eventId = c.req.param('eventId');
+
+        // Get all registrations with 'confirmed' status for this event
+        const registrations = db.getRegistrationsByEventId(eventId)
+            .filter(reg => reg.status === 'approved');
+
+        // Get and count all attendees from confirmed registrations
+        const totalAttendees = registrations.reduce((total, registration) => {
+            const attendees = db.getAttendeesByRegistrationId(registration.id);
+            return total + attendees.length;
+        }, 0);
+
+        return c.json<Result<{ spotsLeft: number }>>({
+            success: true,
+            data: { spotsLeft: totalAttendees }
+        });
+    } catch (err) {
+        return c.json<Result<null>>({
+            success: false,
+            error: {
+                code: 'INTERNAL_SERVER_ERROR',
+                message: err instanceof Error ? err.message : 'Unknown error'
+            }
+        }, { status: 500 });
+    }
+});
+
 events.get('/', (c) => {
     try {
         const { month, year, event_type } = c.req.query();

@@ -1,8 +1,8 @@
 - [x] 2.1 (planlegge)
-- [ ] 2.2 (frontend: lage grensesnitt for Bestiller / kundeside) - Tar IKKE høyde for noen regler nevnt i kravene
+- [x] 2.2 (frontend: lage grensesnitt for Bestiller / kundeside) - Tar IKKE høyde for noen regler nevnt i kravene
     - [x] Bestiller skal kunne se arrangementer per mnd og år
     - [x] Bestiller skal kunne filtrere på type arrangement
-    - [ ] Bestiller skal se om arrangementet er ledig / fullbooket / e.l hvis aktuelt (I don't really want to implement this sooooo)
+    - [x] Bestiller skal se om arrangementet er ledig / fullbooket / e.l hvis aktuelt (I don't really want to implement this sooooo)
     - [x] Skjema ber om nødvendig informasjon om bestilleren
     - [x] Optimalt sett ønsker kunden at det er mulig å legge til flere personer på samme bestilling
 - [x] 2.3 (backend: lage endepunkter for Bestiller / kundeside) - Tar IKKE høyde for noen regler nevnt i kravene
@@ -11,7 +11,7 @@
     - [x] Backend filtration for events with status full (fully-booked etc) 
     - [x] Backend post request and misc logic to add registration
     - [x] Backend post request and misc logic to add attendee to registration
-    - [ ] Code that checks if event is fully-booked idk if its required but if we want to check off the frontend equiv i guess it has to be
+    - [x] Code that checks if event is fully-booked idk if its required but if we want to check off the frontend equiv i guess it has to be
 - [x] 2.4 (koble sammen frontend og backend) - Tar IKKE høyde for noen regler nevnt i kravene
     - [x] EventListing loads all events from backen sqlite db
     - [x] EventPage (Landing page) when navigated to loads specified event

@@ -3,6 +3,7 @@ import { Event } from '@/types/Event';
 import Link from 'next/link';
 import { useState } from 'react';
 import { endpoints } from '@/config/urls';
+import { CapacityIndicator } from './CapacityIndicator';
 
 interface EventCardProps extends Event {
     isAdmin: boolean;
@@ -67,7 +68,9 @@ export const EventCard = (event: EventCardProps) => {
                                 <MapPin className="w-5 h-5 text-gray-400" />
                                 <span>{event.location}</span>
                             </div>
-
+                            <div className="flex items-center gap-2">
+                                <CapacityIndicator eventId={event.id} capacity={event.capacity} />
+                            </div>
                             <div className="flex items-center gap-2">
                                 <Link href={`/events/${event.slug}`}
                                     className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
