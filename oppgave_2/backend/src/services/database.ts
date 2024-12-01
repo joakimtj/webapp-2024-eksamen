@@ -219,8 +219,22 @@ export class AppDB {
     }
 
     deleteTemplate(id: string): boolean {
-        const result = db.prepare('DELETE FROM templates WHERE id = ?').run(id);
-        return result.changes > 0;
+        try {
+            // First check if any events are using this template
+            const eventsUsingTemplate = db.prepare(
+                'SELECT COUNT(*) as count FROM events WHERE template_id = ?'
+            ).get(id) as { count: number };
+
+            if (eventsUsingTemplate.count > 0) {
+                throw new Error('Cannot delete template: There are events using this template');
+            }
+
+            // If no events are using it, proceed with deletion
+            const result = db.prepare('DELETE FROM templates WHERE id = ?').run(id);
+            return result.changes > 0;
+        } catch (error) {
+            throw error;
+        }
     }
 
     createTemplate(data: CreateTemplateData): Template {

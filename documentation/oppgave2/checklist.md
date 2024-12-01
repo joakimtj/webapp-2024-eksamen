@@ -17,7 +17,7 @@
     - [x] EventPage (Landing page) when navigated to loads specified event
     - [x] RegistrationForm sends registration and attendees to the backend db
     - [x] Event filter populates with info from the available events in the db 
-- [ ] 2.5 (frontend: lag grensesnittet for admin) -  Aktuelle regler må ivaretas
+- [x] 2.5 (frontend: lag grensesnittet for admin) -  Aktuelle regler må ivaretas
     - [x] Form for event and template creation
     - [x] Create event based on template
     - [ ] Template override on set rules 
