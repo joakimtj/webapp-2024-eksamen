@@ -107,6 +107,30 @@ export class AppDB {
     }
 
     createEvent(data: CreateEventData): Event {
+        // Check template rules if event is created from template
+        if (data.template_id) {
+            const template = this.getTemplateById(data.template_id);
+            if (template) {
+                const rules = JSON.parse(template.rules);
+
+                // Check no same day events rule
+                if (rules.noSameDayEvents) {
+                    const eventDate = new Date(data.date).toISOString().split('T')[0];
+
+                    const existingEvents = db.prepare(`
+                        SELECT COUNT(*) as count 
+                        FROM events 
+                        WHERE date(date) = date(?)
+                        AND template_id = ?
+                    `).get(eventDate, data.template_id) as { count: number };
+
+                    if (existingEvents.count > 0) {
+                        throw new Error('Cannot create event: Template has no same day events rule and an event already exists on this date');
+                    }
+                }
+            }
+        }
+
         const now = new Date().toISOString();
         const id = `evt_${nanoid()}`;
 
@@ -137,7 +161,7 @@ export class AppDB {
             data.location,
             data.capacity,
             data.price,
-            data.isPublic,
+            data.isPublic ? 1 : 0,
             data.template_id,
             now,
             now

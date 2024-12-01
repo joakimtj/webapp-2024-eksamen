@@ -211,12 +211,22 @@ events.post('/', async (c) => {
             }, { status: 400 });
         }
 
-        const event = db.createEvent(body);
+        try {
+            const event = db.createEvent(body);
+            return c.json<Result<Event>>({
+                success: true,
+                data: event
+            });
+        } catch (error) {
+            return c.json<Result<Event>>({
+                success: false,
+                error: {
+                    code: 'RULE_VIOLATION',
+                    message: error instanceof Error ? error.message : 'Unknown error'
+                }
+            }, { status: 400 });
+        }
 
-        return c.json<Result<Event>>({
-            success: true,
-            data: event
-        });
     } catch (err) {
         return c.json<Result<Event>>({
             success: false,

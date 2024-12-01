@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Users, Clock, Banknote, Pencil, X, Save } from 'lucide-react';
 import { Event } from '@/types/Event';
 import RegistrationForm from '@/components/RegistrationForm';
@@ -25,6 +25,7 @@ export const EventPage = ({
 }: EventPageProps) => {
     const [isRegistering, setIsRegistering] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [templateRules, setTemplateRules] = useState<any>(null);
     const [editForm, setEditForm] = useState({
         title,
         description,
@@ -32,8 +33,26 @@ export const EventPage = ({
         location,
         capacity,
         price,
-        event_type: type
+        event_type: type,
+        isPublic
     });
+
+    useEffect(() => {
+        if (isEditing && template_id) {
+            const fetchTemplateRules = async () => {
+                try {
+                    const response = await fetch(`${endpoints.getTemplates}/${template_id}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        setTemplateRules(JSON.parse(result.data.rules));
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch template rules:', err);
+                }
+            };
+            fetchTemplateRules();
+        }
+    }, [isEditing, template_id]);
 
     if (price == null) price = 0;
 
@@ -45,7 +64,10 @@ export const EventPage = ({
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(editForm)
+                body: JSON.stringify({
+                    ...editForm,
+                    isPublic: editForm.isPublic ? 1 : 0  // Convert boolean to number for SQLite
+                })
             });
 
             const result = await response.json();
@@ -60,10 +82,10 @@ export const EventPage = ({
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         setEditForm(prev => ({
             ...prev,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
 
@@ -125,6 +147,8 @@ export const EventPage = ({
                                     onChange={handleInputChange}
                                     className="p-2 border rounded"
                                     placeholder="Price (NOK)"
+                                    disabled={templateRules?.hasFixedPrice}
+                                    title={templateRules?.hasFixedPrice ? "Price is fixed by template" : ""}
                                 />
                                 <input
                                     type="number"
@@ -133,8 +157,36 @@ export const EventPage = ({
                                     onChange={handleInputChange}
                                     className="p-2 border rounded"
                                     placeholder="Capacity"
+                                    disabled={templateRules?.hasFixedCapacity}
+                                    title={templateRules?.hasFixedCapacity ? "Capacity is fixed by template" : ""}
                                 />
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        name="isPublic"
+                                        checked={editForm.isPublic}
+                                        onChange={handleInputChange}
+                                        disabled={templateRules?.isPrivate}
+                                        title={templateRules?.isPrivate ? "Privacy is fixed by template" : ""}
+                                    />
+                                    Public Event
+                                </label>
                             </div>
+
+                            {/* Template Rule Warnings */}
+                            {templateRules && (
+                                <div className="text-sm text-gray-600 space-y-1">
+                                    {templateRules.hasFixedPrice && (
+                                        <p>• Price is fixed by template: {templateRules.fixedPrice} NOK</p>
+                                    )}
+                                    {templateRules.hasFixedCapacity && (
+                                        <p>• Capacity is fixed by template: {templateRules.fixedCapacity}</p>
+                                    )}
+                                    {templateRules.isPrivate && (
+                                        <p>• Event is set to private by template</p>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="flex gap-2 justify-end">
                                 <button
