@@ -48,7 +48,6 @@ export const CapacityIndicator: React.FC<CapacityIndicatorProps> = ({ eventId, c
         return null;
     }
 
-    console.log(totalAttendees);
     const spotsLeft = capacity - totalAttendees;
     const isFull = spotsLeft <= 0;
 

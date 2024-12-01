@@ -32,11 +32,11 @@ events.get('/capacity/:eventId', async (c) => {
     try {
         const eventId = c.req.param('eventId');
 
-        // Get all registrations with 'confirmed' status for this event
+        // Get all registrations with 'approved' status for this event
         const registrations = db.getRegistrationsByEventId(eventId)
             .filter(reg => reg.status === 'approved');
 
-        // Get and count all attendees from confirmed registrations
+        // Get and count all attendees from approved registrations
         const totalAttendees = registrations.reduce((total, registration) => {
             const attendees = db.getAttendeesByRegistrationId(registration.id);
             return total + attendees.length;
