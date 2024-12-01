@@ -42,3 +42,14 @@ export interface TemplateRules {
     isFree?: boolean;                 // Rule 6
     hasWaitingList?: boolean;         // Rule 7
 }
+
+export interface Template {
+    id: string;
+    name: string;
+    event_type: string;
+    default_capacity: number;
+    default_price: number;
+    rules: string;
+    created_at: string;
+    updated_at: string;
+}

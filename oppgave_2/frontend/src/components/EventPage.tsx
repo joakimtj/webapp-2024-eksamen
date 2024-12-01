@@ -35,8 +35,6 @@ export const EventPage = ({
         event_type: type
     });
 
-    console.log(isPublic)
-
     if (price == null) price = 0;
 
     const handleEditSubmit = async (e: React.FormEvent) => {
