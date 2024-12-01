@@ -19,6 +19,8 @@ export const EventPage = ({
     price,
     event_type: type,
     slug,
+    isPublic,
+    template_id,
     isAdmin,
 }: EventPageProps) => {
     const [isRegistering, setIsRegistering] = useState(false);
@@ -32,6 +34,8 @@ export const EventPage = ({
         price,
         event_type: type
     });
+
+    console.log(isPublic)
 
     if (price == null) price = 0;
 

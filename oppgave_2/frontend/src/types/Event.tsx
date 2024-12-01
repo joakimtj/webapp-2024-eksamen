@@ -8,6 +8,8 @@ export interface Event {
     location: string;
     capacity: number;
     price: number | null;
+    isPublic?: boolean;
+    template_id: string | null;
     created_at: string;
     updated_at: string;
 }

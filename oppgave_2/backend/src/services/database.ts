@@ -22,19 +22,21 @@ export class AppDB {
         updated_at TIMESTAMP NOT NULL
       );
 
-      CREATE TABLE IF NOT EXISTS events (
-        id TEXT PRIMARY KEY,
-        slug TEXT NOT NULL UNIQUE,
-        title TEXT NOT NULL,
-        description TEXT,
-        event_type TEXT NOT NULL,
-        date TIMESTAMP NOT NULL,
-        location TEXT NOT NULL,
-        capacity INTEGER NOT NULL,
-        price DECIMAL(10,2),
-        created_at TIMESTAMP NOT NULL,
-        updated_at TIMESTAMP NOT NULL
-      );
+        CREATE TABLE IF NOT EXISTS events (
+            id TEXT PRIMARY KEY,
+            slug TEXT NOT NULL UNIQUE,
+            title TEXT NOT NULL,
+            description TEXT,
+            event_type TEXT NOT NULL,
+            date TIMESTAMP NOT NULL,
+            location TEXT NOT NULL,
+            capacity INTEGER NOT NULL,
+            price DECIMAL(10,2),
+            isPublic BOOLEAN DEFAULT true,
+            template_id TEXT REFERENCES templates(id),
+            created_at TIMESTAMP NOT NULL,
+            updated_at TIMESTAMP NOT NULL
+        );
 
       CREATE TABLE IF NOT EXISTS registrations (
         id TEXT PRIMARY KEY,
@@ -58,6 +60,14 @@ export class AppDB {
 
     getEventById(id: string): Event | null {
         return db.prepare('SELECT * FROM events WHERE id = ?').get(id) as Event | null;
+    }
+
+    getPublicEvents(): Event[] {
+        return db.prepare('SELECT * FROM events WHERE isPublic = true ORDER BY date').all() as Event[];
+    }
+
+    getEventsByTemplateId(templateId: string): Event[] {
+        return db.prepare('SELECT * FROM events WHERE template_id = ? ORDER BY date').all(templateId) as Event[];
     }
 
     getAllEvents(filters?: EventFilters): Event[] {
@@ -101,20 +111,22 @@ export class AppDB {
         const id = `evt_${nanoid()}`;
 
         const result = db.prepare(`
-          INSERT INTO events (
-            id,
-            slug,
-            title,
-            description,
-            event_type,
-            date,
-            location,
-            capacity,
-            price,
-            created_at,
-            updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          RETURNING *
+            INSERT INTO events (
+                id,
+                slug,
+                title,
+                description,
+                event_type,
+                date,
+                location,
+                capacity,
+                price,
+                isPublic,
+                template_id,
+                created_at,
+                updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            RETURNING *
         `).get(
             id,
             data.slug,
@@ -125,6 +137,8 @@ export class AppDB {
             data.location,
             data.capacity,
             data.price,
+            data.isPublic,
+            data.template_id,
             now,
             now
         ) as Event;
@@ -178,22 +192,23 @@ export class AppDB {
     replaceEvent(id: string, event: Omit<Event, 'id' | 'created_at' | 'updated_at'>): Event | null {
         const now = new Date().toISOString();
         const result = db.prepare(`
-          UPDATE events 
-          SET title = @title,
-              description = @description,
-              event_type = @event_type,
-              date = @date,
-              location = @location,
-              capacity = @capacity,
-              price = @price,
-              updated_at = @updated_at
-          WHERE id = @id
-          RETURNING *
+            UPDATE events 
+            SET title = @title,
+                description = @description,
+                event_type = @event_type,
+                date = @date,
+                location = @location,
+                capacity = @capacity,
+                price = @price,
+                isPublic = @isPublic,
+                template_id = @template_id,
+                updated_at = @updated_at
+            WHERE id = @id
+            RETURNING *
         `).get({ ...event, id, updated_at: now });
 
         return result as Event;
     }
-
     // Templates
     getAllTemplates(): Template[] {
         return db.prepare('SELECT * FROM templates').all() as Template[];

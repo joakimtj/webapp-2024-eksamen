@@ -1,3 +1,5 @@
+//TODO: Update backend to use isPublic, template_id on Event model
+
 // Event Types
 export interface Event {
     id: string;
@@ -9,6 +11,8 @@ export interface Event {
     location: string;
     capacity: number;
     price: number | null;
+    isPublic?: boolean;
+    template_id: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -22,6 +26,8 @@ export interface CreateEventData {
     location: string;
     capacity: number;
     price: number | null;
+    isPublic?: boolean;
+    template_id: string | null;
 }
 
 export interface UpdateEventData {
@@ -39,6 +45,8 @@ export interface EventFilters {
     year?: number;
     event_type?: string;
     status?: 'available' | 'full';
+    isPublic?: boolean;
+    template_id?: string;
 }
 
 export interface FilterOptions {
