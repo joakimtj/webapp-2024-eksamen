@@ -5,35 +5,52 @@
 ### Events
 - Base path: `/api/events`
 
-| Verb   | Endpoint         | Description                      |
-| ------ | ---------------- | -------------------------------- |
-| GET    | /api/events      | List all events (with filtering) |
-| GET    | /api/events/{id} | Get specific event               |
-| POST   | /api/events      | Create new event                 |
-| PUT    | /api/events/{id} | Update event                     |
-| DELETE | /api/events/{id} | Delete event                     |
+| Verb   | Endpoint                      | Description                      |
+| ------ | ----------------------------- | -------------------------------- |
+| GET    | /api/events                   | List all events (with filtering) |
+| GET    | /api/events/filters           | Get filter options               |
+| GET    | /api/events/:slug             | Get specific event by slug       |
+| GET    | /api/events/capacity/:eventId | Get event capacity info          |
+| POST   | /api/events                   | Create new event                 |
+| PUT    | /api/events/:id               | Replace event                    |
+| PATCH  | /api/events/:id               | Update event                     |
+| DELETE | /api/events/:id               | Delete event                     |
 
 ### Templates
 - Base path: `/api/templates`
 
-| Verb   | Endpoint            | Description           |
-| ------ | ------------------- | --------------------- |
-| GET    | /api/templates      | List all templates    |
-| GET    | /api/templates/{id} | Get specific template |
-| POST   | /api/templates      | Create new template   |
-| PUT    | /api/templates/{id} | Update template       |
-| DELETE | /api/templates/{id} | Delete template       |
+| Verb   | Endpoint           | Description           |
+| ------ | ------------------ | --------------------- |
+| GET    | /api/templates     | List all templates    |
+| GET    | /api/templates/:id | Get specific template |
+| POST   | /api/templates     | Create new template   |
+| PUT    | /api/templates/:id | Update template       |
+| DELETE | /api/templates/:id | Delete template       |
 
 ### Registrations
 - Base path: `/api/registrations`
 
-| Verb   | Endpoint                | Description                |
-| ------ | ----------------------- | -------------------------- |
-| GET    | /api/registrations      | List all registrations     |
-| GET    | /api/registrations/{id} | Get specific registration  |
-| POST   | /api/registrations      | Create new registration    |
-| PUT    | /api/registrations/{id} | Update registration status |
-| DELETE | /api/registrations/{id} | Delete registration        |
+| Verb   | Endpoint                          | Description                |
+| ------ | --------------------------------- | -------------------------- |
+| GET    | /api/registrations                | List all registrations     |
+| GET    | /api/registrations/:id            | Get specific registration  |
+| GET    | /api/registrations/event/:eventId | Get event's registrations  |
+| POST   | /api/registrations                | Create new registration    |
+| PUT    | /api/registrations/:id            | Update registration        |
+| PATCH  | /api/registrations/:id            | Update registration status |
+| DELETE | /api/registrations/:id            | Delete registration        |
+
+### Attendees
+- Base path: `/api/attendees`
+
+| Verb   | Endpoint                           | Description                |
+| ------ | ---------------------------------- | -------------------------- |
+| GET    | /api/attendees                     | List all attendees         |
+| GET    | /api/attendees/:id                 | Get specific attendee      |
+| GET    | /api/attendees/registration/:regId | Get registration attendees |
+| POST   | /api/attendees                     | Create new attendee        |
+| PUT    | /api/attendees/:id                 | Update attendee            |
+| DELETE | /api/attendees/:id                 | Delete attendee            |
 
 ### Statistics
 - Base path: `/api/statistics`
