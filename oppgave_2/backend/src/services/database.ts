@@ -133,8 +133,26 @@ export class AppDB {
     }
 
     deleteEvent(id: string): boolean {
-        const result = db.prepare('DELETE FROM events WHERE id = ?').run(id);
-        return result.changes > 0;
+        try {
+            db.exec('BEGIN TRANSACTION');
+
+            // Get all registrations for this event
+            const registrations = db.prepare('SELECT id FROM registrations WHERE event_id = ?').all(id) as { id: string }[];
+
+            // Delete each registration (which will also delete associated attendees)
+            for (const reg of registrations) {
+                this.deleteRegistration(reg.id, true);  // Pass true to indicate we're within a transaction
+            }
+
+            // Finally delete the event
+            const result = db.prepare('DELETE FROM events WHERE id = ?').run(id);
+
+            db.exec('COMMIT');
+            return result.changes > 0;
+        } catch (error) {
+            db.exec('ROLLBACK');
+            throw error;
+        }
     }
 
     updateEvent(id: string, data: UpdateEventData): Event | null {
@@ -249,21 +267,28 @@ export class AppDB {
         return db.prepare('SELECT * FROM registrations WHERE event_id = ?').all(eventId) as Registration[];
     }
 
-    deleteRegistration(id: string): boolean {
-        try {
-            db.exec('BEGIN TRANSACTION');
+    deleteRegistration(id: string, withinTransaction: boolean = false): boolean {
+        if (!withinTransaction) {
+            try {
+                db.exec('BEGIN TRANSACTION');
 
-            // Delete all associated attendees first
+                // Delete all associated attendees first
+                db.prepare('DELETE FROM attendees WHERE registration_id = ?').run(id);
+
+                // Then delete the registration
+                const result = db.prepare('DELETE FROM registrations WHERE id = ?').run(id);
+
+                db.exec('COMMIT');
+                return result.changes > 0;
+            } catch (error) {
+                db.exec('ROLLBACK');
+                throw error;
+            }
+        } else {
+            // When called within a transaction, just do the deletes
             db.prepare('DELETE FROM attendees WHERE registration_id = ?').run(id);
-
-            // Then delete the registration
             const result = db.prepare('DELETE FROM registrations WHERE id = ?').run(id);
-
-            db.exec('COMMIT');
             return result.changes > 0;
-        } catch (error) {
-            db.exec('ROLLBACK');
-            throw error;
         }
     }
 
