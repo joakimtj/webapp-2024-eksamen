@@ -72,7 +72,7 @@ const EventListing = () => {
             {/* Main Content */}
             <div className={`max-w-6xl mx-auto p-6 ${showRoleSelector ? 'blur-sm' : ''}`}>
                 {isAdmin && (
-                    <div className="mb-4 flex justify-end">
+                    <div className="mb-4 flex justify-start">
                         <button
                             onClick={() => window.location.href = '/templates'}
                             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
