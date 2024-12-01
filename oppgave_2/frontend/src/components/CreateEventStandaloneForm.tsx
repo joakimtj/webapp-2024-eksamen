@@ -5,7 +5,6 @@ import { Template, TemplateRules } from '@/types';
 
 
 export const CreateEventStandaloneForm = () => {
-
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -35,6 +34,7 @@ export const CreateEventStandaloneForm = () => {
                 },
                 body: JSON.stringify({
                     ...formData,
+                    isPublic: formData.isPublic ? 1 : 0,  // Convert boolean to number
                     slug
                 })
             });
@@ -58,10 +58,11 @@ export const CreateEventStandaloneForm = () => {
 
     return (
         <div className="space-y-6">
-
-
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Title
+                    </label>
                     <input
                         type="text"
                         name="title"
@@ -74,6 +75,9 @@ export const CreateEventStandaloneForm = () => {
                 </div>
 
                 <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
                     <textarea
                         name="description"
                         placeholder="Event Description"
@@ -85,6 +89,16 @@ export const CreateEventStandaloneForm = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input
+                        type="text"
+                        name="event_type"
+                        placeholder="Event Type"
+                        value={formData.event_type}
+                        onChange={handleInputChange}
+                        className="p-2 border rounded"
+                        required
+                    />
+
                     <input
                         type="datetime-local"
                         name="date"
@@ -104,7 +118,6 @@ export const CreateEventStandaloneForm = () => {
                         required
                     />
 
-
                     <input
                         type="number"
                         name="capacity"
@@ -114,8 +127,6 @@ export const CreateEventStandaloneForm = () => {
                         className="p-2 border rounded"
                         required
                     />
-
-
 
                     <input
                         type="number"
@@ -127,6 +138,19 @@ export const CreateEventStandaloneForm = () => {
                         required
                     />
 
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            name="isPublic"
+                            checked={formData.isPublic}
+                            onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                isPublic: e.target.checked
+                            }))}
+                            className="rounded"
+                        />
+                        Public Event
+                    </label>
                 </div>
 
                 <button

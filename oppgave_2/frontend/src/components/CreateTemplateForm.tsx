@@ -15,9 +15,9 @@ export const CreateTemplateForm = () => {
         allowedWeekDays: [],
         isPrivate: false,
         hasFixedCapacity: false,
-        fixedCapacity: 0,
+        fixedCapacity: undefined,
         hasFixedPrice: false,
-        fixedPrice: 0,
+        fixedPrice: undefined,
         isFree: false,
         hasWaitingList: false
     });
@@ -41,7 +41,6 @@ export const CreateTemplateForm = () => {
                 throw new Error(result.error.message);
             }
 
-            // Reset form or redirect
             window.location.reload();
         } catch (err) {
             alert('Failed to create template: ' + (err instanceof Error ? err.message : 'Unknown error'));
@@ -58,10 +57,31 @@ export const CreateTemplateForm = () => {
 
     const handleRuleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
-        setTemplateRules(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        if (type === 'checkbox') {
+            if (name === 'hasFixedCapacity') {
+                setTemplateRules(prev => ({
+                    ...prev,
+                    hasFixedCapacity: checked,
+                    fixedCapacity: checked ? formData.default_capacity : undefined
+                }));
+            } else if (name === 'hasFixedPrice') {
+                setTemplateRules(prev => ({
+                    ...prev,
+                    hasFixedPrice: checked,
+                    fixedPrice: checked ? formData.default_price : undefined
+                }));
+            } else {
+                setTemplateRules(prev => ({
+                    ...prev,
+                    [name]: checked
+                }));
+            }
+        } else {
+            setTemplateRules(prev => ({
+                ...prev,
+                [name]: Number(value)
+            }));
+        }
     };
 
     return (
@@ -147,24 +167,50 @@ export const CreateTemplateForm = () => {
                         </div>
                         {/* Right Column */}
                         <div className="space-y-2">
-                            <label className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    name="hasFixedCapacity"
-                                    checked={templateRules.hasFixedCapacity}
-                                    onChange={handleRuleChange}
-                                />
-                                Fixed capacity
-                            </label>
-                            <label className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    name="hasFixedPrice"
-                                    checked={templateRules.hasFixedPrice}
-                                    onChange={handleRuleChange}
-                                />
-                                Fixed price
-                            </label>
+                            <div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        name="hasFixedCapacity"
+                                        checked={templateRules.hasFixedCapacity}
+                                        onChange={handleRuleChange}
+                                    />
+                                    Fixed capacity
+                                </label>
+                                {templateRules.hasFixedCapacity && (
+                                    <input
+                                        type="number"
+                                        name="fixedCapacity"
+                                        placeholder="Fixed Capacity"
+                                        value={templateRules.fixedCapacity || ''}
+                                        onChange={handleRuleChange}
+                                        className="mt-2 p-2 border rounded w-full"
+                                        required
+                                    />
+                                )}
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        name="hasFixedPrice"
+                                        checked={templateRules.hasFixedPrice}
+                                        onChange={handleRuleChange}
+                                    />
+                                    Fixed price
+                                </label>
+                                {templateRules.hasFixedPrice && (
+                                    <input
+                                        type="number"
+                                        name="fixedPrice"
+                                        placeholder="Fixed Price"
+                                        value={templateRules.fixedPrice || ''}
+                                        onChange={handleRuleChange}
+                                        className="mt-2 p-2 border rounded w-full"
+                                        required
+                                    />
+                                )}
+                            </div>
                             <label className="flex items-center gap-2">
                                 <input
                                     type="checkbox"

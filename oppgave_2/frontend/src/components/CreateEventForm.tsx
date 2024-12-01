@@ -38,6 +38,7 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
                 },
                 body: JSON.stringify({
                     ...formData,
+                    isPublic: formData.isPublic ? 1 : 0,  // Convert boolean to number
                     slug
                 })
             });

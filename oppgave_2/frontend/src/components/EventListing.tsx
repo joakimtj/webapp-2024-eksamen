@@ -126,7 +126,6 @@ const EventListing = () => {
                     ))}
                 </div>
             </div>
-            {isAdmin && <EventForm onClose={refresh} />}
         </div>
     );
 };
