@@ -9,7 +9,7 @@ interface CreateEventFormProps {
 export const CreateEventForm = ({ template }: CreateEventFormProps) => {
     const rules = JSON.parse(template.rules);
     const [formData, setFormData] = useState({
-        title: '',
+        title: template.name,
         description: '',
         date: '',
         location: '',
