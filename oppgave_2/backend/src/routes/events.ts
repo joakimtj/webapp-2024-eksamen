@@ -88,7 +88,7 @@ events.get('/:slug', async (c): Promise<Response> => {
     try {
         const slug = c.req.param('slug');
         const event = db.getEventBySlug(slug);
-        console.log(event);
+
         if (!event) {
             return c.json<Result<Event>>({
                 success: false,

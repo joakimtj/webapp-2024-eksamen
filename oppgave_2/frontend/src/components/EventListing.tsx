@@ -4,8 +4,6 @@ import { useEvents } from '@/hooks/useEvents';
 import Loading from './loading-states/loading';
 import Error from './loading-states/error';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
-import { EventForm } from './EventForm';
-import { Link } from 'lucide-react';
 
 const EventListing = () => {
     const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);

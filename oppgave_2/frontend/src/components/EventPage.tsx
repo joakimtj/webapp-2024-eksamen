@@ -44,7 +44,15 @@ export const EventPage = ({
                     const response = await fetch(`${endpoints.getTemplates}/${template_id}`);
                     const result = await response.json();
                     if (result.success) {
-                        setTemplateRules(JSON.parse(result.data.rules));
+                        const rules = JSON.parse(result.data.rules);
+                        setTemplateRules(rules);
+                        // Force isPublic to false if template is private
+                        if (rules.isPrivate) {
+                            setEditForm(prev => ({
+                                ...prev,
+                                isPublic: false
+                            }));
+                        }
                     }
                 } catch (err) {
                     console.error('Failed to fetch template rules:', err);
@@ -164,10 +172,10 @@ export const EventPage = ({
                                     <input
                                         type="checkbox"
                                         name="isPublic"
-                                        checked={editForm.isPublic}
+                                        checked={templateRules?.isPrivate ? false : editForm.isPublic}
                                         onChange={handleInputChange}
                                         disabled={templateRules?.isPrivate}
-                                        title={templateRules?.isPrivate ? "Privacy is fixed by template" : ""}
+                                        title={templateRules?.isPrivate ? "Event must be private as per template rules" : ""}
                                     />
                                     Public Event
                                 </label>
