@@ -121,9 +121,18 @@ const EventListing = () => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
-                    {events.map(event => (
-                        <EventCard key={event.id} {...event} event_type={event.event_type} isAdmin={isAdmin} onDelete={refresh} />
-                    ))}
+                    {events.map(event => {
+                        if (!isAdmin && !event.isPublic) return null;
+                        return (
+                            <EventCard
+                                key={event.id}
+                                {...event}
+                                event_type={event.event_type}
+                                isAdmin={isAdmin}
+                                onDelete={refresh}
+                            />
+                        );
+                    })}
                 </div>
             </div>
         </div>
