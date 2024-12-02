@@ -75,7 +75,13 @@ export class AppDB {
         const params: any[] = [];
         const conditions: string[] = [];
 
+        console.log('Database filters:', filters); // Debug log
+
         if (filters) {
+            if (filters.isAdmin === false) {  // Only add isPublic condition if NOT admin
+                conditions.push('isPublic = 1');
+            }
+
             if (filters.month !== undefined) {
                 conditions.push("strftime('%m', date) = ?");
                 params.push(filters.month.toString().padStart(2, '0'));
@@ -97,8 +103,8 @@ export class AppDB {
         }
 
         query += ' ORDER BY date';
+        console.log('Final query:', query, 'Params:', params); // Debug log
 
-        console.log('Query:', query, 'Params:', params); // For debugging
         return db.prepare(query).all(params) as Event[];
     }
 

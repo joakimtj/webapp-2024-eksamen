@@ -59,15 +59,21 @@ events.get('/capacity/:eventId', async (c) => {
 
 events.get('/', (c) => {
     try {
-        const { month, year, event_type } = c.req.query();
+        const { month, year, event_type, isAdmin } = c.req.query();
+        console.log('Raw isAdmin from query:', isAdmin); // Debug log
 
-        const filters: EventFilters = {};
+        const filters: EventFilters = {
+            isAdmin: isAdmin === 'true', // This is correct, keep it
+        };
 
         if (month) filters.month = parseInt(month);
         if (year) filters.year = parseInt(year);
         if (event_type) filters.event_type = event_type;
 
-        const events = db.getAllEvents(Object.keys(filters).length > 0 ? filters : undefined);
+        console.log('Final filters:', filters); // Debug log
+
+        const events = db.getAllEvents(filters);
+        console.log('Events found:', events.length); // Debug log
 
         return c.json<Result<Event[]>>({
             success: true,

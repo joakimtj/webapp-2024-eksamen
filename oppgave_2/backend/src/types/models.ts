@@ -47,6 +47,7 @@ export interface EventFilters {
     status?: 'available' | 'full';
     isPublic?: boolean;
     template_id?: string;
+    isAdmin?: boolean;  // Change from required to optional
 }
 
 export interface FilterOptions {

@@ -7,6 +7,7 @@ interface FilterParams {
     month?: number;
     year?: number;
     event_type?: string;
+    isAdmin?: string;  // Add this line
 }
 
 export const useEvents = (filters?: FilterParams) => {
@@ -21,6 +22,7 @@ export const useEvents = (filters?: FilterParams) => {
             if (filters?.month) queryParams.append('month', filters.month.toString());
             if (filters?.year) queryParams.append('year', filters.year.toString());
             if (filters?.event_type) queryParams.append('event_type', filters.event_type);
+            if (filters?.isAdmin) queryParams.append('isAdmin', filters.isAdmin); // Add this line
 
             const url = filters ? `${endpoints.getEvents}?${queryParams.toString()}` : endpoints.getEvents;
             const response = await fetch(url);
@@ -40,7 +42,7 @@ export const useEvents = (filters?: FilterParams) => {
 
     useEffect(() => {
         fetchEvents();
-    }, [filters?.month, filters?.year, filters?.event_type]);
+    }, [filters?.month, filters?.year, filters?.event_type, filters?.isAdmin]); // Add filters?.isAdmin here
 
     return { events, isLoading, error, refresh: fetchEvents };
 };

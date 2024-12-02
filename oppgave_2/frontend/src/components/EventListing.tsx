@@ -17,19 +17,22 @@ const EventListing = () => {
         setIsAdmin(true);
         localStorage.setItem('isAdmin', 'true');
         setShowRoleSelector(false);
+        refresh(); // Add this line to trigger re-fetch
     };
 
     const handleUserClick = () => {
         setIsAdmin(false);
         localStorage.setItem('isAdmin', 'false');
         setShowRoleSelector(false);
+        refresh(); // Add this line to trigger re-fetch
     };
 
     const { options, isLoading: optionsLoading } = useFilterOptions();
     const filters = {
         month: selectedMonth,
         year: selectedYear,
-        event_type: selectedType !== 'all' ? selectedType : undefined
+        event_type: selectedType !== 'all' ? selectedType : undefined,
+        isAdmin: isAdmin.toString() // Convert boolean to string explicitly
     };
 
     const { events, isLoading: eventsLoading, error, refresh } = useEvents(filters);

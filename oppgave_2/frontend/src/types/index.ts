@@ -39,8 +39,6 @@ export interface TemplateRules {
     fixedCapacity?: number;           // Rule 4
     hasFixedPrice?: boolean;          // Rule 5
     fixedPrice?: number;              // Rule 5
-    isFree?: boolean;                 // Rule 6
-    hasWaitingList?: boolean;         // Rule 7
 }
 
 export interface Template {

@@ -8,9 +8,11 @@ Some functionality might not be obvious so here we explain some of it.
 
 When an event is deleted, its registrations and their attendees will be deleted.
 
-### Public Events
+### Private Events
 
-
+'User' will not see in the frontend, or get from the backend, events that are private. (isPublic = false/0)
+E.g., a user will nto be able to see private events in their network response.
+But 'user' will be able to access the event through the stub.
 
 ## Registrations and Attendees
 
@@ -38,9 +40,10 @@ The backend will respond that it could not create the event because of the rule.
 
 ### Fixed Price and Fixed Capacity
 As admin, if you click the edit icon on an event's landing page, you will not be able to edit its price or capacity with these rules active. 
+A template with these rules, will also not have these options exposed to them in the dropdown form for event creation on a template.
 
 ### Is Private Rule
-If an event was created by a template with the is private rule, then an admin cannot edit it to public.
+If an event was created by a template with the is private rule, then an admin cannot edit it to public on the events page.
 
 ### Cannot Delete Template with active Event
 If you attempt to delete a template that was made from a specific template, the deletion will fail with a message.

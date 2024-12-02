@@ -14,8 +14,7 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
         date: '',
         location: '',
         capacity: rules.hasFixedCapacity ? rules.fixedCapacity : template.default_capacity,
-        price: rules.hasFixedPrice ? rules.fixedPrice :
-            rules.isFree ? 0 : template.default_price,
+        price: rules.hasFixedPrice ? rules.fixedPrice : template.default_price,
         event_type: template.event_type,
         isPublic: !rules.isPrivate,  // Now correctly using the template rule
         template_id: template.id
@@ -69,8 +68,6 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
         fixedCapacity: template.default_capacity,
         hasFixedPrice: false,
         fixedPrice: template.default_price,
-        isFree: false,
-        hasWaitingList: false
     });
 
     const handleRuleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,16 +139,6 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
                                     />
                                     Private event
                                 </label>
-
-                                <label className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        name="hasWaitingList"
-                                        checked={templateRules.hasWaitingList}
-                                        onChange={handleRuleChange}
-                                    />
-                                    Enable waiting list
-                                </label>
                             </div>
 
                             <div className="space-y-2">
@@ -196,16 +183,6 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
                                         />
                                     )}
                                 </div>
-
-                                <label className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        name="isFree"
-                                        checked={templateRules.isFree}
-                                        onChange={handleRuleChange}
-                                    />
-                                    Free event
-                                </label>
                             </div>
                         </div>
 

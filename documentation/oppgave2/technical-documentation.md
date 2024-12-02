@@ -62,43 +62,228 @@
 
 ## 2. API Request/Response Specifications
 
+All responses follow the Result type pattern:
+
+### Events
+
+## 2. API Request/Response Specifications
+
+All responses follow the Result type pattern:
+```typescript
+interface Result<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+```
+
 ### Events
 
 #### GET /api/events
 Query Parameters:
 - `month`: number (1-12)
 - `year`: number
-- `type`: string
-- `status`: string (available/full)
-- `page`: number
-- `limit`: number
+- `event_type`: string
+- `isAdmin`: boolean
 
 Success Response (200):
 ```json
 {
+  "success": true,
   "data": [{
     "id": "string",
     "title": "string",
     "slug": "string",
     "description": "string",
-    "eventType": "string",
+    "event_type": "string",
     "date": "string",
     "location": "string",
     "capacity": number,
-    "registered": number,
     "price": number,
-    "status": "string",
-    "isPrivate": boolean,
-    "templateId": "string|null",
+    "is_private": boolean,
+    "template_id": "string|null"
   }]
 }
 ```
 
+#### GET /api/events/filters
+Success Response (200):
+```json
+{
+  "success": true,
+  "data": {
+    "event_types": string[],
+    "months": number[],
+    "years": number[]
+  }
+}
+```
+
+#### GET /api/events/capacity/:eventId
+Success Response (200):
+```json
+{
+  "success": true,
+  "data": {
+    "spotsLeft": number
+  }
+}
+```
+
+#### POST /api/events
+Request Body:
+```json
+{
+  "title": "string",
+  "event_type": "string",
+  "date": "string",
+  "location": "string",
+  "capacity": number,
+  "price": number,
+  "slug": "string?",
+  "description": "string?",
+  "is_private": boolean?,
+  "template_id": "string?"
+}
+```
+
+Success Response (200):
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    // ...same as event object above
+  }
+}
+```
+
 Error Responses:
-- 400: Invalid query parameters
+- 400: Invalid input / Duplicate slug
 - 500: Server error
 
-[Similar response structures documented for other endpoints...]
+### Templates
+
+#### GET /api/templates/:id
+Success Response (200):
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "name": "string",
+    "event_type": "string",
+    "default_capacity": number,
+    "default_price": number,
+    "rules": "string"
+  }
+}
+```
+
+#### POST /api/templates
+Request Body:
+```json
+{
+  "name": "string",
+  "event_type": "string",
+  "default_capacity": number,
+  "default_price": number,
+  "rules": "string"
+}
+```
+
+### Registrations
+
+#### GET /api/registrations/event/:eventId
+Success Response (200):
+```json
+{
+  "success": true,
+  "data": [{
+    "id": "string",
+    "event_id": "string",
+    "status": "pending" | "approved" | "rejected",
+    "total_price": number
+  }]
+}
+```
+
+#### PATCH /api/registrations/:id
+Request Body:
+```json
+{
+  "status": "pending" | "approved" | "rejected",
+  "total_price": number
+}
+```
+
+### Attendees
+
+#### GET /api/attendees/registration/:registrationId
+Success Response (200):
+```json
+{
+  "success": true,
+  "data": [{
+    "id": "string",
+    "registration_id": "string",
+    "name": "string",
+    "email": "string",
+    "phone": "string"
+  }]
+}
+```
+
+#### POST /api/attendees
+Request Body:
+```json
+{
+  "registration_id": "string",
+  "name": "string",
+  "email": "string",
+  "phone": "string"
+}
+```
+
+### Common Error Responses
+
+All endpoints may return these error responses:
+
+#### 400 Bad Request
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_INPUT",
+    "message": "Description of what's wrong"
+  }
+}
+```
+
+#### 404 Not Found
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RESOURCE_NOT_FOUND",
+    "message": "Resource type not found"
+  }
+}
+```
+
+#### 500 Server Error
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INTERNAL_SERVER_ERROR",
+    "message": "An unexpected error occurred"
+  }
+}
+```
 
 ## 3. Frontend Routes and Pages
 
@@ -141,6 +326,7 @@ Error Responses:
     year?: number;
     event_type?: string;
     status?: 'available' | 'full';
+    isAdmin: boolean;
     }
    ```
 

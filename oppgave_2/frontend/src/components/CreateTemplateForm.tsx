@@ -18,8 +18,6 @@ export const CreateTemplateForm = () => {
         fixedCapacity: undefined,
         hasFixedPrice: false,
         fixedPrice: undefined,
-        isFree: false,
-        hasWaitingList: false
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -155,15 +153,6 @@ export const CreateTemplateForm = () => {
                                 />
                                 Private event
                             </label>
-                            <label className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    name="hasWaitingList"
-                                    checked={templateRules.hasWaitingList}
-                                    onChange={handleRuleChange}
-                                />
-                                Enable waiting list
-                            </label>
                         </div>
                         {/* Right Column */}
                         <div className="space-y-2">
@@ -211,15 +200,6 @@ export const CreateTemplateForm = () => {
                                     />
                                 )}
                             </div>
-                            <label className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    name="isFree"
-                                    checked={templateRules.isFree}
-                                    onChange={handleRuleChange}
-                                />
-                                Free event
-                            </label>
                         </div>
                     </div>
                 </div>
