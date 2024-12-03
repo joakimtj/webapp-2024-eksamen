@@ -1,4 +1,4 @@
-# Implementations
+# Features
 
 Just in case, some functionality isn't obvious, we've decided to list some of the more important ones out here.
 
