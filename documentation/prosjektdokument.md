@@ -13,8 +13,8 @@ Fordel 0-3 poeng per rute. Ingen skal ha 0 og alle kan ikke ha 3 over alt.
 
 |        | Prosjekt\* | Backend | Frontend | Testing | Annet\*\* |
 | :----- | :--------- | :------ | :------- | :------ | :-------- |
-| Niklas | 1          | 2       | 3        | 1       |           |
-| Joakim | 1          | 2       | 3        | 1       |           |
+| Niklas | 2          | 2       | 2        | 2       |           |
+| Joakim | 2          | 2       | 2        | 2       |           |
 
 
 *\* Prosjektkolonnen er knyttet til prosjektstyring (Trello, GitHub, Discord m.m).*  
@@ -22,11 +22,11 @@ Fordel 0-3 poeng per rute. Ingen skal ha 0 og alle kan ikke ha 3 over alt.
 
 ### Hvordan har samarbeidet fungert?
 
-Fylles ut om det er noe spesielt å si
+Samarbeidet i prosjektet har hovedsakelig foregått gjennom Discord og git. Discord har fungert som vår primære kommunikasjonsplattform, hvor vi har kunnet diskutere løpende problemstillinger. Git har gjort det enkelt å holde oversikt over endringer. Denne kombinasjonen av verktøy har fungert for oss, men det er mulig det blir innviklet når prosjektet involverer flere mennesker.
 
 ### Hvilke antagelser gjorde dere i oppgaven?
-
-Fylles ut om det er noe spesielt å si
+#### Oppgave 1
+Om ikke det ble spesifisert, ble det ikke gjort noen noen særlige utvidelser av kode som var gitt til oss. Et eksempel på dette er brukersystemet. Mulighet til å lage en ny bruker og hente brukere fra databasen---samt API endepunkter for disse---ble implementert, men ingen ytterlige funksjonalitet.
 
 ### Hvilke deler av oppgaven trenger utvidet forklaring?
 
