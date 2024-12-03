@@ -58,6 +58,24 @@ export class AppDB {
     `);
     }
 
+    private validateEventDate(date: string, templateId: string | null): void {
+        if (!templateId) return;
+
+        const template = this.getTemplateById(templateId);
+        if (!template) return;
+
+        const rules = JSON.parse(template.rules);
+        if (rules.allowedWeekDays && rules.allowedWeekDays.length > 0) {
+            const eventDate = new Date(date);
+            const eventDay = eventDate.getDay(); // 0-6, where 0 is Sunday
+            if (!rules.allowedWeekDays.includes(eventDay)) {
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const allowedDayNames = rules.allowedWeekDays.map((day: number) => dayNames[day]).join(', ');
+                throw new Error(`Event can only be scheduled on: ${allowedDayNames}`);
+            }
+        }
+    }
+
     getEventById(id: string): Event | null {
         return db.prepare('SELECT * FROM events WHERE id = ?').get(id) as Event | null;
     }
@@ -118,6 +136,9 @@ export class AppDB {
             const template = this.getTemplateById(data.template_id);
             if (template) {
                 const rules = JSON.parse(template.rules);
+
+                // Validate weekday restrictions
+                this.validateEventDate(data.date, data.template_id);
 
                 // Check no same day events rule
                 if (rules.noSameDayEvents) {
@@ -202,6 +223,11 @@ export class AppDB {
     updateEvent(id: string, data: UpdateEventData): Event | null {
         const current = db.prepare('SELECT * FROM events WHERE id = ?').get(id) as Event | null;
         if (!current) return null;
+
+        // If date is being updated and there's a template, validate the new date
+        if (data.date && current.template_id) {
+            this.validateEventDate(data.date, current.template_id);
+        }
 
         const updates = Object.entries(data)
             .filter(([_, value]) => value !== undefined)

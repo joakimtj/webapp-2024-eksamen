@@ -2,11 +2,22 @@ import React, { useState } from 'react';
 import { endpoints } from '@/config/urls';
 import { Template, TemplateRules } from '@/types';
 
+const WEEKDAYS = [
+    { id: 0, name: 'Sunday' },
+    { id: 1, name: 'Monday' },
+    { id: 2, name: 'Tuesday' },
+    { id: 3, name: 'Wednesday' },
+    { id: 4, name: 'Thursday' },
+    { id: 5, name: 'Friday' },
+    { id: 6, name: 'Saturday' }
+];
+
 interface CreateEventFormProps {
     template: Template;
+    onTemplateUpdate?: () => void;  // Add this prop
 }
 
-export const CreateEventForm = ({ template }: CreateEventFormProps) => {
+export const CreateEventForm = ({ template, onTemplateUpdate }: CreateEventFormProps) => {
     const rules: TemplateRules = JSON.parse(template.rules);
     const [formData, setFormData] = useState({
         title: template.name,
@@ -20,8 +31,57 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
         template_id: template.id
     });
 
+    const [templateRules, setTemplateRules] = useState<TemplateRules>({
+        noSameDayEvents: rules.noSameDayEvents || false,
+        allowedWeekDays: rules.allowedWeekDays || [],
+        isPrivate: rules.isPrivate || false,
+        hasFixedCapacity: rules.hasFixedCapacity || false,
+        fixedCapacity: rules.fixedCapacity || template.default_capacity,
+        hasFixedPrice: rules.hasFixedPrice || false,
+        fixedPrice: rules.fixedPrice || template.default_price,
+    });
+
+    // Add new state for weekday selection toggle
+    const [enableWeekdayRestriction, setEnableWeekdayRestriction] = useState(
+        rules.allowedWeekDays && rules.allowedWeekDays.length > 0
+    );
+
+    const handleWeekdayToggle = (dayId: number) => {
+        setTemplateRules(prev => ({
+            ...prev,
+            allowedWeekDays: prev.allowedWeekDays?.includes(dayId)
+                ? prev.allowedWeekDays.filter(d => d !== dayId)
+                : [...(prev.allowedWeekDays || []), dayId]
+        }));
+    };
+
+    const handleWeekdayRestrictionToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEnableWeekdayRestriction(e.target.checked);
+        if (!e.target.checked) {
+            setTemplateRules(prev => ({
+                ...prev,
+                allowedWeekDays: []
+            }));
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate selected date against allowed weekdays
+        if (templateRules.allowedWeekDays) {
+            if (templateRules.allowedWeekDays?.length > 0) {
+                const eventDate = new Date(formData.date);
+                const eventDay = eventDate.getDay();
+                if (!templateRules.allowedWeekDays.includes(eventDay)) {
+                    const allowedDays = templateRules.allowedWeekDays
+                        .map(day => WEEKDAYS[day].name)
+                        .join(', ');
+                    alert(`Events can only be scheduled on: ${allowedDays}`);
+                    return;
+                }
+            }
+        }
 
         // Generate slug from title
         const slug = formData.title
@@ -60,15 +120,6 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
     };
 
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
-    const [templateRules, setTemplateRules] = useState<TemplateRules>({
-        noSameDayEvents: false,
-        allowedWeekDays: [],
-        isPrivate: false,
-        hasFixedCapacity: false,
-        fixedCapacity: template.default_capacity,
-        hasFixedPrice: false,
-        fixedPrice: template.default_price,
-    });
 
     const handleRuleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -99,6 +150,7 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
 
             alert('Template updated successfully');
             setIsEditingTemplate(false);
+            window.location.reload(); // Add page reload here
         } catch (err) {
             alert('Failed to update template: ' + (err instanceof Error ? err.message : 'Unknown error'));
         }
@@ -139,6 +191,30 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
                                     />
                                     Private event
                                 </label>
+
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={enableWeekdayRestriction}
+                                        onChange={handleWeekdayRestrictionToggle}
+                                    />
+                                    Restrict to specific weekdays
+                                </label>
+
+                                {enableWeekdayRestriction && (
+                                    <div className="ml-6 space-y-2">
+                                        {WEEKDAYS.map(day => (
+                                            <label key={day.id} className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={templateRules.allowedWeekDays?.includes(day.id)}
+                                                    onChange={() => handleWeekdayToggle(day.id)}
+                                                />
+                                                {day.name}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -245,18 +321,6 @@ export const CreateEventForm = ({ template }: CreateEventFormProps) => {
                             name="capacity"
                             placeholder="Capacity"
                             value={formData.capacity}
-                            onChange={handleInputChange}
-                            className="p-2 border rounded"
-                            required
-                        />
-                    )}
-
-                    {!rules.hasFixedPrice && !rules.isFree && (
-                        <input
-                            type="number"
-                            name="price"
-                            placeholder="Price (NOK)"
-                            value={formData.price}
                             onChange={handleInputChange}
                             className="p-2 border rounded"
                             required

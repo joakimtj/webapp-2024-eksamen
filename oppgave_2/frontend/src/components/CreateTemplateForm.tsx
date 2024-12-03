@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { endpoints } from '@/config/urls';
 import { TemplateRules } from '@/types';
 
+const WEEKDAYS = [
+    { id: 0, name: 'Sunday' },
+    { id: 1, name: 'Monday' },
+    { id: 2, name: 'Tuesday' },
+    { id: 3, name: 'Wednesday' },
+    { id: 4, name: 'Thursday' },
+    { id: 5, name: 'Friday' },
+    { id: 6, name: 'Saturday' }
+];
+
 export const CreateTemplateForm = () => {
     const [formData, setFormData] = useState({
         name: '',
@@ -19,6 +29,9 @@ export const CreateTemplateForm = () => {
         hasFixedPrice: false,
         fixedPrice: undefined,
     });
+
+    // Add new state for weekday selection toggle
+    const [enableWeekdayRestriction, setEnableWeekdayRestriction] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,6 +91,25 @@ export const CreateTemplateForm = () => {
             setTemplateRules(prev => ({
                 ...prev,
                 [name]: Number(value)
+            }));
+        }
+    };
+
+    const handleWeekdayToggle = (dayId: number) => {
+        setTemplateRules(prev => ({
+            ...prev,
+            allowedWeekDays: prev.allowedWeekDays?.includes(dayId)
+                ? prev.allowedWeekDays.filter(d => d !== dayId)
+                : [...(prev.allowedWeekDays || []), dayId]
+        }));
+    };
+
+    const handleWeekdayRestrictionToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEnableWeekdayRestriction(e.target.checked);
+        if (!e.target.checked) {
+            setTemplateRules(prev => ({
+                ...prev,
+                allowedWeekDays: []
             }));
         }
     };
@@ -144,6 +176,31 @@ export const CreateTemplateForm = () => {
                                 />
                                 No same day events
                             </label>
+
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={enableWeekdayRestriction}
+                                    onChange={handleWeekdayRestrictionToggle}
+                                />
+                                Restrict to specific weekdays
+                            </label>
+
+                            {enableWeekdayRestriction && (
+                                <div className="ml-6 space-y-2">
+                                    {WEEKDAYS.map(day => (
+                                        <label key={day.id} className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={templateRules.allowedWeekDays?.includes(day.id)}
+                                                onChange={() => handleWeekdayToggle(day.id)}
+                                            />
+                                            {day.name}
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
+
                             <label className="flex items-center gap-2">
                                 <input
                                     type="checkbox"

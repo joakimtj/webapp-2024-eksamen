@@ -28,7 +28,7 @@ export const TemplateCard = ({ template, onDelete }: TemplateCardProps) => {
                 throw new Error(result.error.message);
             }
 
-            onDelete?.();
+            window.location.reload(); // Add page reload here
         } catch (err) {
             // If it's the specific error about events using the template
             if (err instanceof Error && err.message.includes('events using this template')) {
@@ -77,7 +77,7 @@ export const TemplateCard = ({ template, onDelete }: TemplateCardProps) => {
                                 {rules.noSameDayEvents && (
                                     <li>• No other events allowed on the same day</li>
                                 )}
-                                {rules.allowedWeekDays && (
+                                {rules.allowedWeekDays && rules.allowedWeekDays.length > 0 && (
                                     <li>• Only allowed on: {rules.allowedWeekDays.map(day =>
                                         ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
                                     ).join(', ')}</li>
