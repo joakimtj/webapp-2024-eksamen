@@ -5,9 +5,9 @@
     - [x] Categories
     - [x] Lessons
     - [x] New course
-    - [ ] Ability to write new comments (DLC)
-    - [x] Ability to create new user (DLC)
-        - [ ] Admin checkmark (no admin functionality in db yet, DLC)
+    - [ ] Ability to write new comments
+    - [x] Ability to create new user
+        - [ ] Admin checkmark (no admin functionality in db yet)
 - [ ] 1.4 Editor
 - [ ] 1.5 Testing
     - [x] When showing create page
