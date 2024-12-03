@@ -22,11 +22,11 @@ Fordel 0-3 poeng per rute. Ingen skal ha 0 og alle kan ikke ha 3 over alt.
 
 ### Hvordan har samarbeidet fungert?
 
-Fylles ut om det er noe spesielt å si
+Samarbeidet i prosjektet har hovedsakelig foregått gjennom Discord og git. Discord har fungert som vår primære kommunikasjonsplattform, hvor vi har kunnet diskutere løpende problemstillinger. Git har gjort det enkelt å holde oversikt over endringer. Denne kombinasjonen av verktøy har fungert for oss, men det er mulig det blir innviklet når prosjektet involverer flere mennesker.
 
 ### Hvilke antagelser gjorde dere i oppgaven?
-
-Fylles ut om det er noe spesielt å si
+#### Oppgave 1
+Om ikke det ble spesifisert, ble det ikke gjort noen noen særlige utvidelser av kode som var gitt til oss. Et eksempel på dette er brukersystemet. Mulighet til å lage en ny bruker og hente brukere fra databasen---samt API endepunkter for disse---ble implementert, men ingen ytterlige funksjonalitet.
 
 #### Oppgave 2
 
@@ -46,7 +46,11 @@ Den presiserer de funksjonene som er implementert i fall om noe er uklart.
 
 Fylles ut om det er noe spesielt å si
 
+<<<<<<< HEAD
 ### Bruk av AI
 AI (Claude Sonnet 3.5) ble brukt i stor grad. Derfor er dets bruk ikke annotert i kode.
 
 ### Annet
+=======
+### Annet
+>>>>>>> ebb2d624f0ca350343d16dbda0362e869712bfe0
