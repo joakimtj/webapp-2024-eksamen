@@ -3,6 +3,7 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CourseFields, LessonType, GetCategoriesResponse } from "../types";
+import TextEditor from "./TextEditor";
 
 interface CourseStep {
     id: string;
@@ -433,14 +434,18 @@ function Create() {
                                         <div key={field?.id}>
                                             <label className="mt-4 flex flex-col" htmlFor={`text-${field?.id}`}>
                                                 <span className="text-sm font-semibold">Tekst*</span>
-                                                <textarea
-                                                    data-testid="form_lesson_text"
-                                                    name="text"
-                                                    id={`text-${field?.id}`}
-                                                    value={field?.text}
-                                                    onChange={(e) => handleLessonFieldChange(e, index)}
-                                                    className="w-full rounded bg-slate-100"
-                                                    cols={30}
+                                                <TextEditor
+                                                    content={field?.text}
+                                                    onChange={(newContent) => {
+                                                        const e = {
+                                                            target: {
+                                                                name: 'text',
+                                                                value: newContent
+                                                            }
+                                                        };
+                                                        handleLessonFieldChange(e as any, index);
+                                                    }}
+                                                    className="w-full bg-slate-100"
                                                 />
                                             </label>
                                             <button
@@ -455,14 +460,18 @@ function Create() {
                                 ) : (
                                     <label className="mb-4 flex flex-col" htmlFor="text">
                                         <span className="mb-1 text-sm font-semibold">Tekst*</span>
-                                        <textarea
-                                            data-testid="form_lesson_text"
-                                            name="text"
-                                            id="text"
-                                            value={lessons[currentLesson]?.text?.[0]?.text}
-                                            onChange={(e) => handleLessonFieldChange(e, 0)}
-                                            className="w-full rounded bg-slate-100"
-                                            cols={30}
+                                        <TextEditor
+                                            content={lessons[currentLesson]?.text?.[0]?.text || ''}
+                                            onChange={(newContent) => {
+                                                const e = {
+                                                    target: {
+                                                        name: 'text',
+                                                        value: newContent
+                                                    }
+                                                };
+                                                handleLessonFieldChange(e as any, 0);
+                                            }}
+                                            className="w-full bg-slate-100"
                                         />
                                     </label>
                                 )}

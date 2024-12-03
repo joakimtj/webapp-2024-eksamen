@@ -8,7 +8,7 @@
     - [ ] Ability to write new comments
     - [x] Ability to create new user
         - [ ] Admin checkmark (no admin functionality in db yet)
-- [ ] 1.4 Editor
+- [x] 1.4 Editor
 - [ ] 1.5 Testing
     - [x] When showing create page
     - [x] When stepping from first to second step
