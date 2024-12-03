@@ -1,0 +1,45 @@
+CREATE TABLE courses (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    description TEXT,
+    category TEXT REFERENCES categories(name),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE lessons (
+    id TEXT PRIMARY KEY,
+    course_id TEXT REFERENCES courses(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    preamble TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE lesson_content_blocks (
+    id TEXT PRIMARY KEY,
+    lesson_id TEXT REFERENCES lessons(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    block_order INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE comments (
+    id TEXT PRIMARY KEY,
+    lesson_id TEXT REFERENCES lessons(id) ON DELETE CASCADE,
+    user_id TEXT REFERENCES users(id),
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories (
+    name TEXT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

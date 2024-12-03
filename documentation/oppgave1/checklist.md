@@ -1,0 +1,24 @@
+- [x] 1.1 (planlegge)
+- [x] 1.2 (endringer i frontend)
+- [ ] 1.3 (endringer i backend)
+    - [x] Courses
+    - [x] Categories
+    - [x] Lessons
+    - [x] New course
+    - [ ] Ability to write new comments
+    - [x] Ability to create new user
+        - [ ] Admin checkmark (no admin functionality in db yet)
+- [ ] 1.4 Editor
+- [ ] 1.5 Testing
+    - [x] When showing create page
+    - [x] When stepping from first to second step
+    - [x] When at step two
+    - [x] When added new lesson
+    - [x] When creating multiple lessons
+    - [x] When showing create page
+    - [ ] When creating multiple lessons with multiple textboxes
+    - [ ] When created new course
+TODO:
+- Clean up doc.md endpoints
+- Comments?
+
