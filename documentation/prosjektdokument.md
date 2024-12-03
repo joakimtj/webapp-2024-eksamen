@@ -46,11 +46,7 @@ Den presiserer de funksjonene som er implementert i fall om noe er uklart.
 
 Fylles ut om det er noe spesielt å si
 
-<<<<<<< HEAD
 ### Bruk av AI
 AI (Claude Sonnet 3.5) ble brukt i stor grad. Derfor er dets bruk ikke annotert i kode.
 
 ### Annet
-=======
-### Annet
->>>>>>> ebb2d624f0ca350343d16dbda0362e869712bfe0
