@@ -1,0 +1,23 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Filter Section -->
+  <rect x="0" y="0" width="800" height="60" fill="#f0f0f0"/>
+  <rect x="40" y="15" width="120" height="30" fill="#ffffff" stroke="#cccccc"/>
+  <text x="55" y="35" font-size="14">Month: March</text>
+  <rect x="180" y="15" width="120" height="30" fill="#ffffff" stroke="#cccccc"/>
+  <text x="195" y="35" font-size="14">Year: 2024</text>
+  <rect x="320" y="15" width="120" height="30" fill="#ffffff" stroke="#cccccc"/>
+  <text x="335" y="35" font-size="14">Type: All</text>
+  
+  <!-- Event Cards -->
+  <rect x="40" y="80" width="720" height="100" fill="#ffffff" stroke="#cccccc"/>
+  <text x="60" y="110" font-size="18">Workshop: Introduction</text>
+  <text x="60" y="135" font-size="14">March 15, 2024 - Available</text>
+  <rect x="600" y="95" width="120" height="30" fill="#4CAF50"/>
+  <text x="630" y="115" font-size="14" fill="white">Book</text>
+  
+  <rect x="40" y="200" width="720" height="100" fill="#ffffff" stroke="#cccccc"/>
+  <text x="60" y="230" font-size="18">Meeting: Board</text>
+  <text x="60" y="255" font-size="14">March 20, 2024 - Full</text>
+  <rect x="600" y="215" width="120" height="30" fill="#999999"/>
+  <text x="630" y="235" font-size="14" fill="white">Full</text>
+</svg>

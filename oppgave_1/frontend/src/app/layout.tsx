@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
-// TODO: Kommenter ut om du ønsker å bruke .css
-// import '../styles/scss/main.css'
-
-// TODO: Kommenter ut om du ikke ønsker å bruke tailwind
-import "../styles/tailwind/main.css";
+// Tailwind CSS import
+import "./globals.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,11 +26,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
+        <div className="mx-auto grid min-h-screen w-full max-w-7xl grid-rows-[auto_minmax(900px,_1fr)_30px]">
+          <nav className="mt-6 mb-12 flex justify-between">
+            <h1 className="text-lg font-bold uppercase">
+              <a href="/">Mikro LMS</a>
+            </h1>
+            <ul className="flex gap-8">
+              <li className="text-base font-semibold">
+                <a href="/courses">Kurs</a>
+              </li>
+              <li className="text-base font-semibold">
+                <a href="/courses/new">Nytt kurs</a>
+              </li>
+            </ul>
+          </nav>
+          {children}
+          <footer className="flex justify-between">
+            <p>Mikro LMS AS, 2024</p>
+            <p>99 00 00 00, mail@lms.no</p>
+          </footer>
+        </div>
       </body>
     </html>
   );

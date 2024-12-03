@@ -1,0 +1,53 @@
+erDiagram
+    courses {
+        string id PK
+        string title
+        string slug UK
+        string description
+        string category FK
+        timestamp created_at
+    }
+
+    lessons {
+        string id PK
+        string course_id FK
+        string title
+        string slug
+        string preamble
+        integer lesson_order
+        timestamp created_at
+    }
+
+    lesson_content_blocks {
+        string id PK
+        string lesson_id FK
+        string content
+        integer block_order
+        timestamp created_at
+    }
+
+    comments {
+        string id PK
+        string lesson_id FK
+        string user_id FK
+        string comment
+        timestamp created_at
+    }
+
+    users {
+        string id PK
+        string name
+        string email UK
+        timestamp created_at
+    }
+
+    categories {
+        string name PK
+        timestamp created_at
+    }
+
+    courses ||--o{ lessons : contains
+    lessons ||--o{ lesson_content_blocks : has
+    lessons ||--o{ comments : has
+    users ||--o{ comments : makes
+    categories ||--o{ courses : categorizes
