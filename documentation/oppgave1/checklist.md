@@ -9,6 +9,7 @@
     - [x] Ability to create new user
         - [ ] Admin checkmark (no admin functionality in db yet)
 - [x] 1.4 Editor
+    - [x] Ability to change between editors (USE_TIPTAP flag in TextEditor.tsx)
 - [ ] 1.5 Testing
     - [x] When showing create page
     - [x] When stepping from first to second step
