@@ -1,6 +1,6 @@
 # Implementations
 
-Some functionality might not be obvious so here we explain some of it.
+Just in case, some functionality isn't obvious, we've decided to list some of the more important ones out here.
 
 ## Events
 
@@ -43,7 +43,14 @@ As admin, if you click the edit icon on an event's landing page, you will not be
 A template with these rules, will also not have these options exposed to them in the dropdown form for event creation on a template.
 
 ### Is Private Rule
-If an event was created by a template with the is private rule, then an admin cannot edit it to public on the events page.
+If an event was created by a template with this as a rule, then an admin is NOT able to edit its visibility on the EventPage (an event's landing page.)
+E.g., admin cannot edit isPublic to be true on the event page. That toggle cannot be interacted with.
 
 ### Cannot Delete Template with active Event
 If you attempt to delete a template that was made from a specific template, the deletion will fail with a message.
+
+### Allowed WeekDays
+A template can be set to only allow events created on specific days.
+When set, this will be enforced both in the backend and frontend.
+E.g., the event landing page will rely on the backend enforcement by sending an alert error informing admin of the rule enforcement.
+On the CreateEventForm (the template dropdown event creation on the manage templates screen) this is additionally enforced on the frontend.
