@@ -13,8 +13,8 @@ Fordel 0-3 poeng per rute. Ingen skal ha 0 og alle kan ikke ha 3 over alt.
 
 |        | Prosjekt\* | Backend | Frontend | Testing | Annet\*\* |
 | :----- | :--------- | :------ | :------- | :------ | :-------- |
-| Niklas | 1          | 2       | 3        | 1       |           |
-| Joakim | 1          | 2       | 3        | 1       |           |
+| Niklas | 2          | 2       | 2        | 2       |           |
+| Joakim | 2          | 2       | 2        | 2       |           |
 
 
 *\* Prosjektkolonnen er knyttet til prosjektstyring (Trello, GitHub, Discord m.m).*  
@@ -28,12 +28,25 @@ Fylles ut om det er noe spesielt å si
 
 Fylles ut om det er noe spesielt å si
 
+#### Oppgave 2
+
+Antok at det ikke var et krav at admin skulle verifiseres. 
+Derfor er grensesnittet for valg mellom admin og user/bruker enkelt.
+
 ### Hvilke deler av oppgaven trenger utvidet forklaring?
 
 Fylles ut om det er noe spesielt å si
 
+#### Oppgave 2
+
+I documentation/oppgave2 ligger en feature-readme.md. 
+Den presiserer de funksjonene som er implementert i fall om noe er uklart.
+
 ### Hvilke problemer oppstod underveis og hvordan ble de løst?
 
 Fylles ut om det er noe spesielt å si
+
+### Bruk av AI
+AI (Claude Sonnet 3.5) ble brukt i stor grad. Derfor er dets bruk ikke annotert i kode.
 
 ### Annet
