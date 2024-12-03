@@ -185,6 +185,12 @@ interface CreateLessonRequest {
   ```
   - 500: Server error
 
+#### POST /api/users
+- Purpose: Create a new user
+- Response:
+  - 201: Created user
+  - 500: Server error
+  
 ## Pages and Routes
 
 ### 1. Login Page (/)
